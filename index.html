@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Biblioteca mea</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,400&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+
+  <link rel="stylesheet" href="style.css" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📚</text></svg>" />
+</head>
+<body>
+  <div class="page">
+    <header class="hero">
+      <div class="hero-emoji">📚</div>
+      <h1>Biblioteca mea</h1>
+      <p class="subtitle">Toate cărțile tale, la îndemână</p>
+    </header>
+
+    <main>
+      <!-- Adăugare carte -->
+      <section class="card">
+        <h2><span class="ico">✍️</span> Adaugă o carte</h2>
+        <form id="add-form">
+          <input type="text" id="title" placeholder="Titlul cărții" required autocomplete="off" />
+          <input type="text" id="author" placeholder="Autorul (opțional)" autocomplete="off" />
+          <button type="submit" class="btn-primary">Adaugă în bibliotecă</button>
+        </form>
+      </section>
+
+      <!-- Căutare -->
+      <section class="card search-card">
+        <div class="search-wrap">
+          <span class="search-ico">🔎</span>
+          <input type="search" id="search" placeholder="Caută un titlu sau un autor..." autocomplete="off" />
+        </div>
+      </section>
+
+      <!-- Lista -->
+      <section class="card">
+        <div class="list-header">
+          <h2><span class="ico">📖</span> Cărțile tale</h2>
+          <span id="count" class="count">0</span>
+        </div>
+        <p id="status" class="status"></p>
+        <ul id="book-list"></ul>
+      </section>
+    </main>
+
+    <footer>
+      <p>Apasă pe 🗑️ ca să scoți o carte din listă.</p>
+    </footer>
+  </div>
+
+  <!-- Supabase + aplicația -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="config.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
