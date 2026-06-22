@@ -16,6 +16,8 @@
 
 * { box-sizing: border-box; }
 html, body { height: 100%; }
+/* fundal închis și pe html ca să nu apară alb la „tragerea" paginii pe iPhone */
+html { background: var(--bg-2); }
 
 body {
   margin: 0;
@@ -29,10 +31,17 @@ body {
   background-attachment: fixed;
 }
 
-.page { max-width: 660px; margin: 0 auto; padding: 0 16px 40px; }
+.page {
+  max-width: 660px;
+  margin: 0 auto;
+  /* respectă zona sigură (notch / Dynamic Island / margini) pe iPhone */
+  padding-left: max(16px, env(safe-area-inset-left));
+  padding-right: max(16px, env(safe-area-inset-right));
+  padding-bottom: calc(40px + env(safe-area-inset-bottom));
+}
 
 /* ---------- Hero ---------- */
-.hero { text-align: center; padding: 40px 16px 18px; }
+.hero { text-align: center; padding: calc(40px + env(safe-area-inset-top)) 16px 18px; }
 .hero-emoji { font-size: 2.4rem; line-height: 1; filter: drop-shadow(0 6px 12px rgba(0, 0, 0, 0.5)); }
 .hero h1 {
   font-family: "Fraunces", Georgia, serif;
