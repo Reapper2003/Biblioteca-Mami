@@ -25,14 +25,24 @@
       <section class="card">
         <h2><span class="ico">✍️</span> Adaugă o carte</h2>
         <form id="add-form">
+          <button type="button" id="scan-btn" class="btn-scan">📷 Scanează codul de bare</button>
+          <div class="or-divider"><span>sau scrie manual</span></div>
+
           <input type="text" id="title" placeholder="Titlul cărții" required autocomplete="off" />
           <input type="text" id="author" placeholder="Autorul (opțional)" autocomplete="off" />
 
           <label class="file-btn" for="cover">
-            <span class="file-btn-label">📷 Adaugă o poză (opțional)</span>
+            <span class="file-btn-label">🖼️ Adaugă o poză (opțional)</span>
           </label>
           <input type="file" id="cover" accept="image/*" hidden />
           <div id="cover-preview" class="cover-preview"></div>
+
+          <select id="add-status" class="status-select">
+            <option value="">Status de citire (opțional)</option>
+            <option value="de_citit">📋 De citit</option>
+            <option value="in_curs">📖 În curs de citire</option>
+            <option value="citita">✅ Citită</option>
+          </select>
 
           <button type="submit" class="btn-primary">Adaugă în bibliotecă</button>
         </form>
@@ -50,7 +60,13 @@
       <section class="card">
         <div class="list-header">
           <h2><span class="ico">📖</span> Cărțile tale</h2>
-          <span id="count" class="count">0</span>
+          <div class="header-right">
+            <div class="view-toggle">
+              <button type="button" id="view-list" class="view-btn">☰ Listă</button>
+              <button type="button" id="view-shelf" class="view-btn">▦ Raft</button>
+            </div>
+            <span id="count" class="count">0</span>
+          </div>
         </div>
         <p id="status" class="status"></p>
         <ul id="book-list"></ul>
@@ -62,8 +78,19 @@
     </footer>
   </div>
 
-  <!-- Supabase + aplicația -->
+  <!-- Fereastra de scanare -->
+  <div id="scan-modal" class="modal" hidden>
+    <div class="modal-box">
+      <h3>📷 Scanează codul de bare</h3>
+      <div id="reader"></div>
+      <p id="scan-msg" class="scan-msg">Îndreaptă camera spre codul de bare de pe spatele cărții.</p>
+      <button type="button" id="scan-close" class="btn-ghost">Închide</button>
+    </div>
+  </div>
+
+  <!-- Biblioteci externe -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
   <script src="config.js"></script>
   <script src="app.js"></script>
 </body>

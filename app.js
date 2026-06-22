@@ -9,12 +9,44 @@ const titleEl = document.getElementById("title");
 const authorEl = document.getElementById("author");
 const coverEl = document.getElementById("cover");
 const coverPreviewEl = document.getElementById("cover-preview");
+const addStatusEl = document.getElementById("add-status");
+const scanBtn = document.getElementById("scan-btn");
+const scanModal = document.getElementById("scan-modal");
+const scanCloseBtn = document.getElementById("scan-close");
+const scanMsg = document.getElementById("scan-msg");
+const viewListBtn = document.getElementById("view-list");
+const viewShelfBtn = document.getElementById("view-shelf");
 
 const BUCKET = "covers"; // numele bucket-ului de imagini din Supabase Storage
+
+// culori frumoase pentru cărțile fără poză (în stil raft)
+const SHELF_COLORS = [
+  ["#F4C0D1", "#4B1528"],
+  ["#B5D4F4", "#042C53"],
+  ["#9FE1CB", "#04342C"],
+  ["#CECBF6", "#26215C"],
+  ["#FAC775", "#412402"],
+  ["#F5C4B3", "#4A1B0C"],
+  ["#C0DD97", "#173404"],
+  ["#F7C1C1", "#501313"],
+];
+function pickColor(text) {
+  let h = 0;
+  for (let i = 0; i < (text || "").length; i++) h = (h + text.charCodeAt(i)) % 9973;
+  return SHELF_COLORS[h % SHELF_COLORS.length];
+}
+
+// etichetele pentru statusul de citire
+const STATUSES = {
+  de_citit: "📋 De citit",
+  in_curs: "📖 În curs",
+  citita: "✅ Citită",
+};
 
 let books = [];        // toate cărțile, încărcate din Supabase
 let db = null;         // clientul Supabase
 let editingId = null;  // id-ul cărții aflate în editare (sau null)
+let view = localStorage.getItem("view") || "list"; // "list" sau "shelf"
 
 // --- Verificăm configurarea ---
 function configOK() {
@@ -63,6 +95,10 @@ async function loadBooks() {
   render();
 }
 
+// ============================================================
+//  POZE
+// ============================================================
+
 // --- Micșorează poza înainte de încărcare (mai rapid + ocupă mai puțin) ---
 function compressImage(file, maxDim = 1200, quality = 0.82) {
   return new Promise((resolve, reject) => {
@@ -103,7 +139,192 @@ async function uploadCover(file) {
   return data.publicUrl;
 }
 
-// --- Afișează lista (filtrată de căutare) ---
+// ============================================================
+//  SCANARE COD DE BARE (ISBN)
+// ============================================================
+
+let html5Qr = null;
+
+async function openScanner() {
+  if (typeof Html5Qrcode === "undefined") {
+    showStatus("Scannerul nu s-a încărcat. Verifică internetul și reîncarcă pagina.", true);
+    return;
+  }
+  scanModal.hidden = false;
+  scanMsg.textContent = "Îndreaptă camera spre codul de bare de pe spatele cărții.";
+  scanMsg.classList.remove("error");
+
+  try {
+    html5Qr = new Html5Qrcode("reader", {
+      formatsToSupport: [
+        Html5QrcodeSupportedFormats.EAN_13,
+        Html5QrcodeSupportedFormats.EAN_8,
+        Html5QrcodeSupportedFormats.UPC_A,
+        Html5QrcodeSupportedFormats.UPC_E,
+      ],
+    });
+    await html5Qr.start(
+      { facingMode: "environment" },
+      { fps: 10, qrbox: { width: 260, height: 160 } },
+      (decodedText) => onScanSuccess(decodedText),
+      () => {} // ignorăm erorile per-cadru (normale cât caută codul)
+    );
+  } catch (err) {
+    scanMsg.textContent =
+      "Nu am putut porni camera. Acceptă accesul la cameră din browser și încearcă din nou.";
+    scanMsg.classList.add("error");
+  }
+}
+
+async function closeScanner() {
+  if (html5Qr) {
+    try {
+      await html5Qr.stop();
+      await html5Qr.clear();
+    } catch (e) {}
+    html5Qr = null;
+  }
+  scanModal.hidden = true;
+}
+
+async function onScanSuccess(code) {
+  const isbn = (code || "").replace(/[^0-9Xx]/g, "");
+  await closeScanner();
+  showStatus("Cod citit: " + isbn + " — caut cartea...");
+  const info = await lookupISBN(isbn);
+  if (info && info.title) {
+    titleEl.value = info.title;
+    if (info.author) authorEl.value = info.author;
+    showStatus("✅ Am găsit: " + info.title + ". Verifică și apasă butonul Adaugă.");
+  } else {
+    showStatus(
+      "Nu am găsit cartea automat (cod " + isbn + "). Scrie titlul manual.",
+      true
+    );
+  }
+  titleEl.focus();
+}
+
+// --- Caută titlul/autorul după ISBN (Google Books, apoi OpenLibrary) ---
+async function lookupISBN(isbn) {
+  try {
+    const r = await fetch(
+      "https://www.googleapis.com/books/v1/volumes?q=isbn:" + isbn
+    );
+    const j = await r.json();
+    if (j.totalItems > 0 && j.items && j.items[0].volumeInfo) {
+      const v = j.items[0].volumeInfo;
+      return { title: v.title || "", author: (v.authors || []).join(", ") };
+    }
+  } catch (e) {}
+
+  try {
+    const r = await fetch(
+      "https://openlibrary.org/api/books?bibkeys=ISBN:" +
+        isbn +
+        "&format=json&jscmd=data"
+    );
+    const j = await r.json();
+    const d = j["ISBN:" + isbn];
+    if (d) {
+      return {
+        title: d.title || "",
+        author: (d.authors || []).map((a) => a.name).join(", "),
+      };
+    }
+  } catch (e) {}
+
+  return null;
+}
+
+scanBtn.addEventListener("click", openScanner);
+scanCloseBtn.addEventListener("click", closeScanner);
+
+// ============================================================
+//  RATING (steluțe) + STATUS DE CITIRE
+// ============================================================
+
+async function setRating(book, value) {
+  const newVal = book.rating === value ? null : value; // re-apăsare = șterge nota
+  const { error } = await db
+    .from("books")
+    .update({ rating: newVal })
+    .eq("id", book.id);
+  if (error) {
+    showStatus("Nu am putut salva nota: " + error.message, true);
+    return;
+  }
+  book.rating = newVal;
+  render();
+}
+
+async function setStatus(book, value) {
+  const newVal = value || null;
+  const { error } = await db
+    .from("books")
+    .update({ status: newVal })
+    .eq("id", book.id);
+  if (error) {
+    showStatus("Nu am putut salva statusul: " + error.message, true);
+    return;
+  }
+  book.status = newVal;
+  render();
+}
+
+function buildStars(book) {
+  const wrap = document.createElement("div");
+  wrap.className = "stars";
+  for (let i = 1; i <= 5; i++) {
+    const star = document.createElement("span");
+    star.className = "star" + (book.rating >= i ? " on" : "");
+    star.textContent = "★";
+    star.title = i + " din 5";
+    star.addEventListener("click", () => setRating(book, i));
+    wrap.appendChild(star);
+  }
+  return wrap;
+}
+
+function buildStatusSelect(book) {
+  const sel = document.createElement("select");
+  sel.className = "status-select inline status-" + (book.status || "none");
+
+  const opt0 = document.createElement("option");
+  opt0.value = "";
+  opt0.textContent = "▫️ Fără status";
+  sel.appendChild(opt0);
+
+  for (const [code, label] of Object.entries(STATUSES)) {
+    const o = document.createElement("option");
+    o.value = code;
+    o.textContent = label;
+    sel.appendChild(o);
+  }
+
+  sel.value = book.status || "";
+  sel.addEventListener("change", () => setStatus(book, sel.value));
+  return sel;
+}
+
+// ============================================================
+//  AFIȘARE LISTĂ
+// ============================================================
+
+function setView(v) {
+  view = v;
+  localStorage.setItem("view", v);
+  updateToggle();
+  render();
+}
+function updateToggle() {
+  viewListBtn.classList.toggle("active", view === "list");
+  viewShelfBtn.classList.toggle("active", view === "shelf");
+}
+viewListBtn.addEventListener("click", () => setView("list"));
+viewShelfBtn.addEventListener("click", () => setView("shelf"));
+updateToggle();
+
 function render() {
   const q = searchEl.value.trim().toLowerCase();
   const filtered = q
@@ -115,6 +336,7 @@ function render() {
     : books;
 
   countEl.textContent = filtered.length;
+  listEl.className = view === "shelf" ? "shelf-view" : "";
   listEl.innerHTML = "";
 
   if (filtered.length === 0) {
@@ -128,10 +350,83 @@ function render() {
   }
 
   for (const book of filtered) {
-    listEl.appendChild(
-      book.id === editingId ? buildEditRow(book) : buildRow(book)
-    );
+    if (book.id === editingId) {
+      listEl.appendChild(buildEditRow(book));
+    } else if (view === "shelf") {
+      listEl.appendChild(buildShelfCard(book));
+    } else {
+      listEl.appendChild(buildRow(book));
+    }
   }
+}
+
+// --- Un card în stil raft (copertă mare) ---
+function buildShelfCard(book) {
+  const li = document.createElement("li");
+  li.className = "shelf-card";
+
+  const cover = document.createElement("div");
+  cover.className = "shelf-cover";
+  if (book.cover_url) {
+    const img = document.createElement("img");
+    img.src = book.cover_url;
+    img.alt = book.title || "copertă";
+    img.loading = "lazy";
+    cover.appendChild(img);
+  } else {
+    const [bg, fg] = pickColor(book.title);
+    cover.classList.add("shelf-cover-text");
+    cover.style.background = bg;
+    cover.style.color = fg;
+    const t = document.createElement("span");
+    t.className = "shelf-cover-title";
+    t.textContent = book.title;
+    cover.appendChild(t);
+  }
+  cover.addEventListener("click", () => {
+    editingId = book.id;
+    render();
+  });
+  li.appendChild(cover);
+
+  const title = document.createElement("div");
+  title.className = "shelf-title";
+  title.textContent = book.title;
+  li.appendChild(title);
+
+  if (book.author) {
+    const author = document.createElement("div");
+    author.className = "shelf-author";
+    author.textContent = book.author;
+    li.appendChild(author);
+  }
+
+  li.appendChild(buildStars(book));
+  li.appendChild(buildStatusSelect(book));
+
+  const actions = document.createElement("div");
+  actions.className = "shelf-actions";
+
+  const edit = document.createElement("button");
+  edit.className = "btn-edit";
+  edit.title = "Modifică cartea";
+  edit.textContent = "✏️";
+  edit.addEventListener("click", () => {
+    editingId = book.id;
+    render();
+  });
+
+  const del = document.createElement("button");
+  del.className = "btn-delete";
+  del.title = "Șterge cartea";
+  del.textContent = "🗑️";
+  del.addEventListener("click", () => deleteBook(book));
+
+  actions.appendChild(edit);
+  actions.appendChild(del);
+  li.appendChild(actions);
+
+  return li;
 }
 
 // --- Un rând normal (mod citire) ---
@@ -154,6 +449,13 @@ function buildRow(book) {
     author.textContent = book.author;
     info.appendChild(author);
   }
+
+  const meta = document.createElement("div");
+  meta.className = "book-meta";
+  meta.appendChild(buildStatusSelect(book));
+  meta.appendChild(buildStars(book));
+  info.appendChild(meta);
+
   li.appendChild(info);
 
   const actions = document.createElement("div");
@@ -225,7 +527,7 @@ function buildEditRow(book) {
 
   const photoLabel = document.createElement("label");
   photoLabel.className = "file-btn small";
-  photoLabel.textContent = book.cover_url ? "📷 Schimbă poza" : "📷 Adaugă o poză";
+  photoLabel.textContent = book.cover_url ? "🖼️ Schimbă poza" : "🖼️ Adaugă o poză";
 
   const fileInput = document.createElement("input");
   fileInput.type = "file";
@@ -252,7 +554,7 @@ function buildEditRow(book) {
     removeBtn.addEventListener("click", () => {
       removeCover = true;
       fileInput.value = "";
-      photoLabel.textContent = "📷 Adaugă o poză";
+      photoLabel.textContent = "🖼️ Adaugă o poză";
       photoLabel.appendChild(fileInput);
       removeBtn.textContent = "Poza va fi ștearsă";
       removeBtn.disabled = true;
@@ -362,7 +664,14 @@ addForm.addEventListener("submit", async (e) => {
     showStatus("Se adaugă...");
     const { data, error } = await db
       .from("books")
-      .insert([{ title, author: author || null, cover_url }])
+      .insert([
+        {
+          title,
+          author: author || null,
+          cover_url,
+          status: addStatusEl.value || null,
+        },
+      ])
       .select();
     if (error) throw error;
 
