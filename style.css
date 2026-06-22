@@ -1,20 +1,20 @@
 :root {
-  --bg: #efe7da;
-  --bg-2: #e6dcca;
-  --card: #fffdf9;
-  --ink: #2b2317;
-  --muted: #9a8d76;
-  --accent: #9c6b3f;
-  --accent-dark: #7d5230;
-  --accent-soft: #f3e7d8;
-  --danger: #b5402f;
-  --line: #ece3d3;
-  --shadow: 0 10px 30px rgba(80, 55, 20, 0.10);
-  --shadow-sm: 0 3px 12px rgba(80, 55, 20, 0.07);
+  --bg: #101814;
+  --bg-2: #0b110d;
+  --card: #1a261f;
+  --card-2: #16201a;
+  --ink: #ece4d3;
+  --muted: #9aa89d;
+  --accent: #d8a657;
+  --accent-dark: #c08f3c;
+  --accent-soft: rgba(216, 166, 87, 0.14);
+  --danger: #e0796b;
+  --line: rgba(255, 255, 255, 0.09);
+  --shadow: 0 14px 36px rgba(0, 0, 0, 0.5);
+  --shadow-sm: 0 3px 14px rgba(0, 0, 0, 0.32);
 }
 
 * { box-sizing: border-box; }
-
 html, body { height: 100%; }
 
 body {
@@ -24,558 +24,247 @@ body {
   line-height: 1.55;
   -webkit-text-size-adjust: 100%;
   background:
-    radial-gradient(1200px 500px at 50% -10%, #f7efe1 0%, transparent 60%),
+    radial-gradient(1100px 480px at 50% -8%, #1c2a22 0%, transparent 62%),
     linear-gradient(160deg, var(--bg) 0%, var(--bg-2) 100%);
   background-attachment: fixed;
 }
 
-.page {
-  max-width: 660px;
-  margin: 0 auto;
-  padding: 0 16px 40px;
-}
+.page { max-width: 660px; margin: 0 auto; padding: 0 16px 40px; }
 
 /* ---------- Hero ---------- */
-.hero {
-  text-align: center;
-  padding: 44px 16px 26px;
-}
-
-.hero-emoji {
-  font-size: 2.6rem;
-  line-height: 1;
-  filter: drop-shadow(0 6px 10px rgba(80, 55, 20, 0.18));
-}
-
+.hero { text-align: center; padding: 40px 16px 18px; }
+.hero-emoji { font-size: 2.4rem; line-height: 1; filter: drop-shadow(0 6px 12px rgba(0, 0, 0, 0.5)); }
 .hero h1 {
   font-family: "Fraunces", Georgia, serif;
-  font-weight: 600;
-  font-size: 2.6rem;
-  letter-spacing: -0.5px;
-  margin: 10px 0 2px;
-  color: #3a2e1c;
+  font-weight: 600; font-size: 2.5rem; letter-spacing: -0.5px;
+  margin: 10px 0 6px; color: #f3ecdc;
+}
+.subtitle {
+  margin: 0 auto; max-width: 460px;
+  color: var(--accent); font-size: 0.98rem; font-style: italic;
+  font-family: "Fraunces", Georgia, serif; line-height: 1.4;
 }
 
-.subtitle {
-  margin: 0;
-  color: var(--muted);
-  font-size: 1rem;
-  font-style: italic;
-  font-family: "Fraunces", Georgia, serif;
+/* ---------- Navigare pagini ---------- */
+.page-nav-wrap { margin: 6px 0 4px; }
+.page-nav {
+  width: 100%;
+  font-family: inherit; font-size: 1rem; font-weight: 600;
+  color: var(--ink); background: var(--card);
+  border: 1px solid var(--line); border-radius: 14px;
+  padding: 14px 16px; cursor: pointer; outline: none;
+  box-shadow: var(--shadow-sm);
 }
+.page-nav:focus { border-color: var(--accent); }
 
 /* ---------- Cards ---------- */
 .card {
-  background: var(--card);
-  border: 1px solid var(--line);
-  border-radius: 18px;
-  padding: 22px;
-  margin-bottom: 18px;
+  background: var(--card); border: 1px solid var(--line);
+  border-radius: 18px; padding: 22px; margin-bottom: 16px;
   box-shadow: var(--shadow-sm);
 }
-
 .card h2 {
-  font-family: "Fraunces", Georgia, serif;
-  font-weight: 600;
-  margin: 0 0 14px;
-  font-size: 1.2rem;
-  display: flex;
-  align-items: center;
-  gap: 9px;
+  font-family: "Fraunces", Georgia, serif; font-weight: 600;
+  margin: 0 0 14px; font-size: 1.2rem;
+  display: flex; align-items: center; gap: 9px; color: #f3ecdc;
 }
-
 .ico { font-size: 1.05rem; }
+.hint { color: var(--muted); font-size: 0.85rem; margin: -4px 0 12px; }
 
 /* ---------- Form ---------- */
-form {
-  display: flex;
-  flex-direction: column;
-  gap: 11px;
+form { display: flex; flex-direction: column; gap: 11px; }
+input, .status-select {
+  width: 100%; padding: 14px 16px; font-size: 1rem; font-family: inherit;
+  border: 1px solid var(--line); border-radius: 12px;
+  background: #10180f; color: var(--ink); outline: none;
+  transition: border-color 0.18s, box-shadow 0.18s;
 }
-
-input {
-  width: 100%;
-  padding: 14px 16px;
-  font-size: 1rem;
-  font-family: inherit;
-  border: 1.5px solid var(--line);
-  border-radius: 12px;
-  background: #fcf8f0;
-  color: var(--ink);
-  outline: none;
-  transition: border-color 0.18s, box-shadow 0.18s, background 0.18s;
-}
-
-input::placeholder { color: #b3a78f; }
-
-input:focus {
-  border-color: var(--accent);
-  background: #fff;
-  box-shadow: 0 0 0 4px rgba(156, 107, 63, 0.12);
+input::placeholder { color: #6f7d71; }
+input:focus, .status-select:focus {
+  border-color: var(--accent); box-shadow: 0 0 0 4px rgba(216, 166, 87, 0.12);
 }
 
 button {
-  cursor: pointer;
-  font-size: 1rem;
-  font-family: inherit;
-  border: none;
-  border-radius: 12px;
-  padding: 14px 18px;
-  font-weight: 600;
+  cursor: pointer; font-size: 1rem; font-family: inherit;
+  border: none; border-radius: 12px; padding: 14px 18px; font-weight: 600;
 }
-
 .btn-primary {
   background: linear-gradient(180deg, var(--accent) 0%, var(--accent-dark) 100%);
-  color: #fff;
-  box-shadow: 0 6px 16px rgba(156, 107, 63, 0.30);
-  transition: transform 0.12s, box-shadow 0.18s, filter 0.18s;
+  color: #241803; box-shadow: 0 6px 16px rgba(216, 166, 87, 0.22);
+  transition: filter 0.15s, transform 0.12s;
 }
-
-.btn-primary:hover { filter: brightness(1.05); box-shadow: 0 8px 20px rgba(156, 107, 63, 0.38); }
+.btn-primary:hover { filter: brightness(1.07); }
 .btn-primary:active { transform: translateY(1px); }
-
-/* ---------- Search ---------- */
-.search-card { padding: 14px; }
-
-.search-wrap { position: relative; }
-
-.search-ico {
-  position: absolute;
-  left: 15px;
-  top: 50%;
-  transform: translateY(-50%);
-  font-size: 1.05rem;
-  opacity: 0.65;
-  pointer-events: none;
-}
-
-#search { padding-left: 46px; }
-
-/* ---------- List ---------- */
-.list-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 8px;
-}
-
-.list-header h2 { margin: 0; }
-
-.count {
-  background: var(--accent-soft);
-  color: var(--accent-dark);
-  font-size: 0.85rem;
-  font-weight: 700;
-  padding: 3px 13px;
-  border-radius: 20px;
-  min-width: 28px;
-  text-align: center;
-  border: 1px solid #e7d6c0;
-}
-
-.status {
-  color: var(--muted);
-  font-size: 0.9rem;
-  margin: 4px 2px 6px;
-  min-height: 1.2em;
-}
-
-.status.error { color: var(--danger); }
-
-ul { list-style: none; margin: 0; padding: 0; }
-
-li {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  padding: 14px 12px;
-  margin-bottom: 8px;
-  border-radius: 12px;
-  background: #fbf6ee;
-  border: 1px solid #f0e7d7;
-  position: relative;
-  overflow: hidden;
-  animation: pop 0.22s ease;
-}
-
-/* cotorul colorat al cărții */
-li:not(.empty)::before {
-  content: "";
-  position: absolute;
-  left: 0;
-  top: 0;
-  bottom: 0;
-  width: 5px;
-  background: linear-gradient(180deg, var(--accent) 0%, var(--accent-dark) 100%);
-}
-
-li:not(.empty) { padding-left: 16px; }
-
-@keyframes pop {
-  from { opacity: 0; transform: translateY(4px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
-
-.book-info { min-width: 0; flex: 1; }
-
-.book-title {
-  font-family: "Fraunces", Georgia, serif;
-  font-weight: 600;
-  font-size: 1.05rem;
-  word-break: break-word;
-  color: #36291a;
-}
-
-.book-author {
-  color: var(--muted);
-  font-size: 0.88rem;
-  word-break: break-word;
-}
-
-.btn-delete {
-  background: transparent;
-  color: var(--danger);
-  font-size: 1.25rem;
-  padding: 8px 11px;
-  border-radius: 10px;
-  flex-shrink: 0;
-  transition: background 0.15s, transform 0.12s;
-}
-
-.btn-delete:hover { background: #f7e3df; }
-.btn-delete:active { transform: scale(0.9); }
-
-/* acțiuni (editează / șterge) */
-.actions { display: flex; gap: 2px; flex-shrink: 0; }
-
-.btn-edit {
-  background: transparent;
-  font-size: 1.15rem;
-  padding: 8px 10px;
-  border-radius: 10px;
-  transition: background 0.15s, transform 0.12s;
-}
-.btn-edit:hover { background: var(--accent-soft); }
-.btn-edit:active { transform: scale(0.9); }
-
-/* miniatura cu coperta */
-.cover {
-  width: 50px;
-  height: 66px;
-  border-radius: 8px;
-  flex-shrink: 0;
-  overflow: hidden;
-  box-shadow: 0 2px 6px rgba(80, 55, 20, 0.18);
-  background: #efe5d4;
-}
-.cover img { width: 100%; height: 100%; object-fit: cover; display: block; }
-.cover-empty {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.5rem;
-  background: var(--accent-soft);
-  color: var(--accent);
-}
-
-/* buton de fișier (poză) */
-.file-btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  cursor: pointer;
-  padding: 12px 16px;
-  border: 1.5px dashed #cdbfa6;
-  border-radius: 12px;
-  color: var(--accent-dark);
-  background: #fcf8f0;
-  font-weight: 600;
-  font-size: 0.95rem;
-  transition: background 0.15s, border-color 0.15s;
-}
-.file-btn:hover { background: var(--accent-soft); border-color: var(--accent); }
-.file-btn.small { padding: 9px 12px; font-size: 0.88rem; }
-
-.cover-preview {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  color: var(--muted);
-  font-size: 0.9rem;
-}
-.cover-preview:empty { display: none; }
-.preview-thumb {
-  width: 46px;
-  height: 60px;
-  object-fit: cover;
-  border-radius: 8px;
-  box-shadow: 0 2px 6px rgba(80, 55, 20, 0.18);
-}
-
-/* mod editare */
-li.editing { display: block; padding: 16px; }
-li.editing::before { display: none; }
-
-.edit-form { display: flex; flex-direction: column; gap: 10px; }
-
-.edit-photo-row {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  flex-wrap: wrap;
-}
-
-.link-danger {
-  background: transparent;
-  color: var(--danger);
-  font-size: 0.85rem;
-  text-decoration: underline;
-  padding: 4px 2px;
-}
-.link-danger:disabled { color: var(--muted); text-decoration: none; cursor: default; }
-
-.edit-actions { display: flex; gap: 8px; margin-top: 2px; }
-
 .btn-primary.small { padding: 11px 18px; font-size: 0.95rem; }
 
 .btn-ghost {
-  background: transparent;
-  color: var(--accent-dark);
-  border: 1.5px solid var(--line);
-  font-weight: 600;
+  background: transparent; color: var(--ink);
+  border: 1px solid var(--line); font-weight: 600;
 }
 .btn-ghost:hover { background: var(--accent-soft); }
 .btn-ghost.small { padding: 11px 16px; font-size: 0.95rem; }
 
-/* ---------- Scanare cod de bare ---------- */
-.btn-scan {
-  width: 100%;
-  background: linear-gradient(180deg, #3a2e1c 0%, #2b2317 100%);
-  color: #fff;
-  font-weight: 600;
-  box-shadow: 0 4px 14px rgba(43, 35, 23, 0.28);
-  transition: filter 0.15s, transform 0.12s;
-}
-.btn-scan:hover { filter: brightness(1.12); }
-.btn-scan:active { transform: translateY(1px); }
+/* ---------- Căutare + filtre ---------- */
+.search-wrap { position: relative; margin-bottom: 12px; }
+.search-ico { position: absolute; left: 15px; top: 50%; transform: translateY(-50%); opacity: 0.6; pointer-events: none; }
+#search { padding-left: 46px; }
+.filters { display: flex; gap: 8px; flex-wrap: wrap; }
+.filters .status-select { width: auto; flex: 1; min-width: 110px; padding: 11px 12px; font-size: 0.9rem; }
 
-.scan-help {
-  background: #fff7e9;
-  border: 1px solid #f0dcb4;
-  border-radius: 12px;
-  padding: 11px 13px;
-  font-size: 0.88rem;
-  color: #8a6d2f;
-  display: flex;
-  flex-direction: column;
-  gap: 7px;
+/* ---------- File button + preview ---------- */
+.file-btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  cursor: pointer; padding: 12px 16px;
+  border: 1.5px dashed rgba(216, 166, 87, 0.4); border-radius: 12px;
+  color: var(--accent); background: #10180f; font-weight: 600; font-size: 0.95rem;
+  transition: background 0.15s, border-color 0.15s;
 }
-.scan-help[hidden] { display: none; }
-.scan-help-link {
-  align-self: flex-start;
-  color: var(--accent-dark);
-  font-weight: 600;
-  text-decoration: underline;
-}
+.file-btn:hover { background: var(--accent-soft); border-color: var(--accent); }
+.file-btn.small { padding: 9px 12px; font-size: 0.88rem; }
+.cover-preview { display: flex; align-items: center; gap: 10px; color: var(--muted); font-size: 0.9rem; }
+.cover-preview:empty { display: none; }
+.preview-thumb { width: 46px; height: 60px; object-fit: cover; border-radius: 8px; box-shadow: var(--shadow-sm); }
 
-.or-divider {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  color: var(--muted);
-  font-size: 0.82rem;
-  margin: 2px 0;
-}
-.or-divider::before,
-.or-divider::after {
-  content: "";
-  flex: 1;
-  height: 1px;
-  background: var(--line);
-}
-
-/* fereastra (modal) de scanare */
-.modal {
-  position: fixed;
-  inset: 0;
-  background: rgba(30, 22, 10, 0.55);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 16px;
-  z-index: 50;
-}
-.modal[hidden] { display: none; }
-.modal-box {
-  background: var(--card);
-  border-radius: 18px;
-  padding: 20px;
-  width: 100%;
-  max-width: 420px;
-  box-shadow: var(--shadow);
-  text-align: center;
-}
-.modal-box h3 {
-  font-family: "Fraunces", Georgia, serif;
-  margin: 0 0 14px;
-  font-size: 1.25rem;
-}
-#reader {
-  width: 100%;
-  border-radius: 12px;
-  overflow: hidden;
-  background: #000;
-}
-#reader video { width: 100% !important; height: auto !important; display: block; }
-.scan-msg { color: var(--muted); font-size: 0.9rem; margin: 12px 0; }
-.scan-msg.error { color: var(--danger); }
-.modal-box .btn-ghost { width: 100%; }
-
-/* ---------- Status de citire (dropdown) ---------- */
-.status-select {
-  font-family: inherit;
-  font-size: 0.95rem;
-  padding: 13px 14px;
-  border: 1.5px solid var(--line);
-  border-radius: 12px;
-  background: #fcf8f0;
-  color: var(--ink);
-  outline: none;
-  cursor: pointer;
-  width: 100%;
-}
-.status-select:focus { border-color: var(--accent); }
-
-.status-select.inline {
-  width: auto;
-  padding: 4px 8px;
-  font-size: 0.8rem;
-  font-weight: 600;
-  border-radius: 20px;
-  border: 1px solid transparent;
-}
-.status-select.inline.status-none { background: #f0ece2; color: var(--muted); }
-.status-select.inline.status-de_citit { background: #eef2fb; color: #3a5bbf; }
-.status-select.inline.status-in_curs { background: #fff2dc; color: #a9742a; }
-.status-select.inline.status-citita { background: #e7f5ea; color: #2f8c4f; }
-
-/* ---------- Steluțe (rating) ---------- */
-.book-meta {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  flex-wrap: wrap;
-  margin-top: 7px;
-}
-.stars { display: inline-flex; gap: 1px; }
-.star {
-  cursor: pointer;
-  font-size: 1.1rem;
-  line-height: 1;
-  color: #d9cdb6;
-  transition: transform 0.1s, color 0.1s;
-}
-.star.on { color: #e8a83a; }
-.star:hover { transform: scale(1.18); }
-
-.empty {
-  display: block;
-  color: var(--muted);
-  text-align: center;
-  padding: 30px 16px;
-  background: transparent;
-  border: 1.5px dashed #ddd0bb;
-  font-style: italic;
-  font-family: "Fraunces", Georgia, serif;
-}
-
-/* ---------- Comutator listă / raft ---------- */
+/* ---------- List header ---------- */
+.list-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+.list-header h2 { margin: 0; }
 .header-right { display: flex; align-items: center; gap: 10px; }
-
-.view-toggle {
-  display: inline-flex;
-  background: #f0ece2;
-  border-radius: 20px;
-  padding: 3px;
-}
-.view-btn {
-  background: transparent;
-  color: var(--muted);
-  font-size: 0.82rem;
-  font-weight: 600;
-  padding: 6px 12px;
-  border-radius: 18px;
-}
-.view-btn.active {
-  background: #fff;
-  color: var(--accent-dark);
-  box-shadow: 0 1px 4px rgba(80, 55, 20, 0.15);
+.count {
+  background: var(--accent-soft); color: var(--accent);
+  font-size: 0.85rem; font-weight: 700; padding: 3px 13px; border-radius: 20px;
+  min-width: 28px; text-align: center; border: 1px solid rgba(216, 166, 87, 0.25);
 }
 
-/* ---------- Vizualizare raft ---------- */
-.shelf-view {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-  gap: 22px 16px;
-}
-.shelf-view li.editing { grid-column: 1 / -1; }
+.status { color: var(--muted); font-size: 0.9rem; margin: 2px 2px 8px; min-height: 1.1em; text-align: center; }
+.status.error { color: var(--danger); }
 
-.shelf-card {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-align: center;
-  gap: 3px;
-  padding: 0;
-  margin: 0;
-  background: transparent;
-  border: none;
-  border-radius: 0;
-  overflow: visible;
+/* ---------- Listă (rânduri) ---------- */
+ul { list-style: none; margin: 0; padding: 0; }
+li {
+  display: flex; align-items: center; gap: 14px;
+  padding: 14px 12px 14px 16px; margin-bottom: 8px;
+  border-radius: 12px; background: var(--card-2);
+  border: 1px solid var(--line); position: relative; overflow: hidden;
   animation: pop 0.22s ease;
 }
-.shelf-card::before { display: none; }
+li::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 4px;
+  background: linear-gradient(180deg, var(--accent) 0%, var(--accent-dark) 100%); }
+li.empty::before, li.editing::before, li.shelf-card::before { display: none; }
+@keyframes pop { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
 
+.book-info { min-width: 0; flex: 1; }
+.book-title { font-family: "Fraunces", Georgia, serif; font-weight: 600; font-size: 1.05rem; word-break: break-word; color: #f1e9d8; }
+.book-author { color: var(--muted); font-size: 0.88rem; word-break: break-word; }
+
+.loaned-badge {
+  display: inline-block; margin-top: 5px;
+  font-size: 0.74rem; color: #e6b9a8;
+  background: rgba(224, 121, 107, 0.14); padding: 2px 8px; border-radius: 20px;
+}
+
+/* miniatura coperta */
+.cover {
+  width: 50px; height: 66px; border-radius: 8px; flex-shrink: 0; overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4); background: #2a3a30;
+}
+.cover img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.cover-empty { display: flex; align-items: center; justify-content: center; font-size: 1.5rem; background: var(--accent-soft); }
+
+/* acțiuni */
+.actions { display: flex; gap: 2px; flex-shrink: 0; }
+.btn-edit, .btn-delete, .btn-buy {
+  background: transparent; font-size: 1.15rem; padding: 8px 9px; border-radius: 10px;
+  transition: background 0.15s, transform 0.12s;
+}
+.btn-delete { color: var(--danger); }
+.btn-edit:hover, .btn-buy:hover { background: var(--accent-soft); }
+.btn-delete:hover { background: rgba(224, 121, 107, 0.15); }
+.btn-edit:active, .btn-delete:active, .btn-buy:active { transform: scale(0.9); }
+
+/* status pills */
+.book-meta { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-top: 7px; }
+.status-select.inline {
+  width: auto; padding: 4px 8px; font-size: 0.8rem; font-weight: 600;
+  border-radius: 20px; border: 1px solid transparent;
+}
+.status-select.inline.status-none { background: rgba(255, 255, 255, 0.06); color: var(--muted); }
+.status-select.inline.status-de_citit { background: rgba(120, 150, 220, 0.16); color: #aac2f0; }
+.status-select.inline.status-in_curs { background: rgba(216, 166, 87, 0.18); color: #e6c07a; }
+.status-select.inline.status-citita { background: rgba(120, 200, 150, 0.16); color: #8fd6a6; }
+.status-select.inline option { color: #1a1a1a; }
+
+/* steluțe */
+.stars { display: inline-flex; gap: 1px; }
+.star { cursor: pointer; font-size: 1.1rem; line-height: 1; color: #3c4a40; transition: transform 0.1s, color 0.1s; }
+.star.on { color: var(--accent); }
+.star:hover { transform: scale(1.18); }
+
+/* ---------- Editare ---------- */
+li.editing { display: block; padding: 16px; background: var(--card-2); }
+.edit-form { display: flex; flex-direction: column; gap: 10px; }
+.edit-photo-row { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.link-danger { background: transparent; color: var(--danger); font-size: 0.85rem; text-decoration: underline; padding: 4px 2px; }
+.link-danger:disabled { color: var(--muted); text-decoration: none; cursor: default; }
+.edit-actions { display: flex; gap: 8px; margin-top: 2px; }
+
+/* ---------- Listă de dorințe / returnare ---------- */
+.btn-buy { color: #8fd6a6; }
+.btn-return {
+  background: var(--accent-soft); color: var(--accent); font-size: 0.85rem;
+  padding: 9px 14px; border-radius: 10px; flex-shrink: 0; border: 1px solid rgba(216, 166, 87, 0.25);
+}
+.btn-return:hover { filter: brightness(1.15); }
+.loaned-who { margin-top: 5px; font-size: 0.82rem; color: #e6b9a8; }
+
+/* ---------- Comutator listă / raft ---------- */
+.view-toggle { display: inline-flex; background: #10180f; border: 1px solid var(--line); border-radius: 20px; padding: 3px; }
+.view-btn { background: transparent; color: var(--muted); font-size: 0.82rem; font-weight: 600; padding: 6px 12px; border-radius: 18px; }
+.view-btn.active { background: var(--accent-soft); color: var(--accent); }
+
+/* ---------- Vizualizare raft ---------- */
+.shelf-view { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 22px 16px; }
+.shelf-view li.editing { grid-column: 1 / -1; }
+.shelf-card {
+  display: flex; flex-direction: column; align-items: center; text-align: center;
+  gap: 3px; padding: 0; margin: 0; background: transparent; border: none; overflow: visible;
+  animation: pop 0.22s ease;
+}
 .shelf-cover {
-  width: 100%;
-  aspect-ratio: 2 / 3;
-  border-radius: 6px 6px 3px 3px;
-  overflow: hidden;
-  box-shadow: 0 5px 12px rgba(40, 25, 10, 0.24);
-  cursor: pointer;
-  transition: transform 0.12s;
-  margin-bottom: 7px;
+  width: 100%; aspect-ratio: 2 / 3; border-radius: 6px 6px 3px 3px; overflow: hidden;
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.5); cursor: pointer; transition: transform 0.12s; margin-bottom: 7px;
 }
 .shelf-cover:hover { transform: translateY(-3px); }
 .shelf-cover img { width: 100%; height: 100%; object-fit: cover; display: block; }
 .shelf-cover-text { padding: 9px; display: flex; align-items: flex-start; }
-.shelf-cover-title {
-  font-family: "Fraunces", Georgia, serif;
-  font-weight: 600;
-  font-size: 0.8rem;
-  line-height: 1.22;
-  text-align: left;
-}
-
-.shelf-title {
-  font-family: "Fraunces", Georgia, serif;
-  font-weight: 600;
-  font-size: 0.85rem;
-  line-height: 1.2;
-  color: #36291a;
-}
+.shelf-cover-title { font-family: "Fraunces", Georgia, serif; font-weight: 600; font-size: 0.8rem; line-height: 1.22; text-align: left; }
+.shelf-title { font-family: "Fraunces", Georgia, serif; font-weight: 600; font-size: 0.85rem; line-height: 1.2; color: #f1e9d8; }
 .shelf-author { color: var(--muted); font-size: 0.74rem; line-height: 1.2; }
 .shelf-card .stars .star { font-size: 1rem; }
 .shelf-card .status-select.inline { font-size: 0.72rem; padding: 3px 7px; }
-.shelf-actions { display: flex; gap: 2px; margin-top: 2px; }
-.shelf-actions .btn-edit { font-size: 1rem; padding: 5px 7px; }
-.shelf-actions .btn-delete { font-size: 1.05rem; padding: 5px 7px; }
+.shelf-card .actions { margin-top: 2px; }
 
-/* ---------- Footer ---------- */
-footer {
-  text-align: center;
-  color: var(--muted);
-  font-size: 0.85rem;
-  padding: 8px 16px 0;
+/* ---------- Statistici ---------- */
+.stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: 10px; }
+.stat { background: #10180f; border: 1px solid var(--line); border-radius: 12px; padding: 14px 12px; text-align: center; }
+.stat-num { font-family: "Fraunces", Georgia, serif; font-size: 1.6rem; font-weight: 600; color: var(--accent); }
+.stat-label { font-size: 0.78rem; color: var(--muted); margin-top: 2px; }
+.stat-author { margin-top: 14px; padding: 14px; background: var(--accent-soft); border-radius: 12px; display: flex; flex-direction: column; gap: 3px; }
+.stat-author-label { font-size: 0.8rem; color: var(--muted); }
+.stat-author-name { font-family: "Fraunces", Georgia, serif; font-size: 1.1rem; color: #f3ecdc; }
+.status-bar { display: flex; height: 14px; border-radius: 20px; overflow: hidden; margin-top: 18px; background: #10180f; }
+.seg-citita { background: #6fbf8c; }
+.seg-in_curs { background: var(--accent); }
+.seg-de_citit { background: #7e9ad8; }
+.status-legend { display: flex; gap: 16px; flex-wrap: wrap; margin-top: 10px; font-size: 0.82rem; color: var(--muted); }
+.dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 4px; vertical-align: -1px; }
+.dot-citita { background: #6fbf8c; }
+.dot-in_curs { background: var(--accent); }
+.dot-de_citit { background: #7e9ad8; }
+
+/* ---------- Empty / Footer ---------- */
+.empty {
+  display: block; color: var(--muted); text-align: center; padding: 30px 16px;
+  background: transparent; border: 1.5px dashed var(--line); font-style: italic;
+  font-family: "Fraunces", Georgia, serif;
 }
+footer { text-align: center; color: var(--muted); font-size: 0.85rem; padding: 8px 16px 0; }

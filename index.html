@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Biblioteca mea</title>
+  <title>Ana's collection</title>
 
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -16,61 +16,129 @@
   <div class="page">
     <header class="hero">
       <div class="hero-emoji">📚</div>
-      <h1>Biblioteca mea</h1>
-      <p class="subtitle">Toate cărțile tale, la îndemână</p>
+      <h1>Ana's collection</h1>
+      <p class="subtitle">„Întotdeauna mi-am imaginat că Paradisul va fi un fel de bibliotecă"</p>
     </header>
 
+    <nav class="page-nav-wrap">
+      <select id="page-nav" class="page-nav">
+        <option value="collection">📚 Cărțile mele</option>
+        <option value="wishlist">🌟 Listă de dorințe</option>
+        <option value="loaned">📕 Împrumutate</option>
+        <option value="stats">📊 Statistici</option>
+      </select>
+    </nav>
+
+    <p id="status" class="status"></p>
+
     <main>
-      <!-- Adăugare carte -->
-      <section class="card">
-        <h2><span class="ico">✍️</span> Adaugă o carte</h2>
-        <form id="add-form">
-          <button type="button" id="scan-btn" class="btn-scan">📷 Scanează codul de bare</button>
-          <div id="scan-help" class="scan-help" hidden></div>
-          <div class="or-divider"><span>sau scrie manual</span></div>
+      <!-- ====================== CĂRȚILE MELE ====================== -->
+      <section data-page="collection">
+        <div class="card">
+          <h2><span class="ico">✍️</span> Adaugă o carte</h2>
+          <form id="add-form">
+            <input type="text" id="title" placeholder="Titlul cărții" required autocomplete="off" />
+            <input type="text" id="author" placeholder="Autorul (opțional)" autocomplete="off" />
 
-          <input type="text" id="title" placeholder="Titlul cărții" required autocomplete="off" />
-          <input type="text" id="author" placeholder="Autorul (opțional)" autocomplete="off" />
+            <label class="file-btn" for="cover"><span>🖼️ Adaugă o poză (opțional)</span></label>
+            <input type="file" id="cover" accept="image/*" hidden />
+            <div id="cover-preview" class="cover-preview"></div>
 
-          <label class="file-btn" for="cover">
-            <span class="file-btn-label">🖼️ Adaugă o poză (opțional)</span>
-          </label>
-          <input type="file" id="cover" accept="image/*" hidden />
-          <div id="cover-preview" class="cover-preview"></div>
+            <select id="add-status" class="status-select">
+              <option value="">Status de citire (opțional)</option>
+              <option value="de_citit">📋 De citit</option>
+              <option value="in_curs">📖 În curs de citire</option>
+              <option value="citita">✅ Citită</option>
+            </select>
 
-          <select id="add-status" class="status-select">
-            <option value="">Status de citire (opțional)</option>
-            <option value="de_citit">📋 De citit</option>
-            <option value="in_curs">📖 În curs de citire</option>
-            <option value="citita">✅ Citită</option>
-          </select>
-
-          <button type="submit" class="btn-primary">Adaugă în bibliotecă</button>
-        </form>
-      </section>
-
-      <!-- Căutare -->
-      <section class="card search-card">
-        <div class="search-wrap">
-          <span class="search-ico">🔎</span>
-          <input type="search" id="search" placeholder="Caută un titlu sau un autor..." autocomplete="off" />
+            <button type="submit" class="btn-primary">Adaugă în colecție</button>
+          </form>
         </div>
-      </section>
 
-      <!-- Lista -->
-      <section class="card">
-        <div class="list-header">
-          <h2><span class="ico">📖</span> Cărțile tale</h2>
-          <div class="header-right">
-            <div class="view-toggle">
-              <button type="button" id="view-list" class="view-btn">☰ Listă</button>
-              <button type="button" id="view-shelf" class="view-btn">▦ Raft</button>
-            </div>
-            <span id="count" class="count">0</span>
+        <div class="card">
+          <div class="search-wrap">
+            <span class="search-ico">🔎</span>
+            <input type="search" id="search" placeholder="Caută un titlu sau un autor..." autocomplete="off" />
+          </div>
+          <div class="filters">
+            <select id="filter-status">
+              <option value="">Toate statusurile</option>
+              <option value="de_citit">📋 De citit</option>
+              <option value="in_curs">📖 În curs</option>
+              <option value="citita">✅ Citite</option>
+            </select>
+            <select id="filter-rating">
+              <option value="">Orice notă</option>
+              <option value="5">★ 5</option>
+              <option value="4">★ 4+</option>
+              <option value="3">★ 3+</option>
+            </select>
+            <select id="sort-by">
+              <option value="title">Titlu (A→Z)</option>
+              <option value="author">Autor (A→Z)</option>
+              <option value="rating">Notă (mare→mică)</option>
+              <option value="recent">Cele mai noi</option>
+            </select>
           </div>
         </div>
-        <p id="status" class="status"></p>
-        <ul id="book-list"></ul>
+
+        <div class="card">
+          <div class="list-header">
+            <h2><span class="ico">📖</span> Cărțile mele</h2>
+            <div class="header-right">
+              <div class="view-toggle">
+                <button type="button" id="view-list" class="view-btn">☰ Listă</button>
+                <button type="button" id="view-shelf" class="view-btn">▦ Raft</button>
+              </div>
+              <span id="count" class="count">0</span>
+            </div>
+          </div>
+          <ul id="book-list"></ul>
+        </div>
+      </section>
+
+      <!-- ====================== LISTĂ DE DORINȚE ====================== -->
+      <section data-page="wishlist" hidden>
+        <div class="card">
+          <h2><span class="ico">🌟</span> Adaugă în lista de dorințe</h2>
+          <form id="wishlist-form">
+            <input type="text" id="w-title" placeholder="Titlul cărții" required autocomplete="off" />
+            <input type="text" id="w-author" placeholder="Autorul (opțional)" autocomplete="off" />
+            <label class="file-btn" for="w-cover"><span>🖼️ Adaugă o poză (opțional)</span></label>
+            <input type="file" id="w-cover" accept="image/*" hidden />
+            <div id="w-cover-preview" class="cover-preview"></div>
+            <button type="submit" class="btn-primary">Adaugă la dorințe</button>
+          </form>
+        </div>
+
+        <div class="card">
+          <div class="list-header">
+            <h2><span class="ico">🌟</span> Cărți dorite</h2>
+            <span id="wishlist-count" class="count">0</span>
+          </div>
+          <p class="hint">Când cumperi o carte, apasă „Am cumpărat-o" și trece în colecția ta.</p>
+          <ul id="wishlist-list"></ul>
+        </div>
+      </section>
+
+      <!-- ====================== ÎMPRUMUTATE ====================== -->
+      <section data-page="loaned" hidden>
+        <div class="card">
+          <div class="list-header">
+            <h2><span class="ico">📕</span> Cărți împrumutate</h2>
+            <span id="loaned-count" class="count">0</span>
+          </div>
+          <p class="hint">Ca să marchezi o carte ca împrumutată: deschide cartea cu ✏️ și scrie cui ai dat-o.</p>
+          <ul id="loaned-list"></ul>
+        </div>
+      </section>
+
+      <!-- ====================== STATISTICI ====================== -->
+      <section data-page="stats" hidden>
+        <div class="card">
+          <h2><span class="ico">📊</span> Statistici</h2>
+          <div id="stats-content"></div>
+        </div>
       </section>
     </main>
 
@@ -79,19 +147,8 @@
     </footer>
   </div>
 
-  <!-- Fereastra de scanare -->
-  <div id="scan-modal" class="modal" hidden>
-    <div class="modal-box">
-      <h3>📷 Scanează codul de bare</h3>
-      <div id="reader"></div>
-      <p id="scan-msg" class="scan-msg">Îndreaptă camera spre codul de bare de pe spatele cărții.</p>
-      <button type="button" id="scan-close" class="btn-ghost">Închide</button>
-    </div>
-  </div>
-
   <!-- Biblioteci externe -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
   <script src="config.js"></script>
   <script src="app.js"></script>
 </body>
