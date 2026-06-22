@@ -14,6 +14,7 @@ const scanBtn = document.getElementById("scan-btn");
 const scanModal = document.getElementById("scan-modal");
 const scanCloseBtn = document.getElementById("scan-close");
 const scanMsg = document.getElementById("scan-msg");
+const scanHelp = document.getElementById("scan-help");
 const viewListBtn = document.getElementById("view-list");
 const viewShelfBtn = document.getElementById("view-shelf");
 
@@ -188,21 +189,52 @@ async function closeScanner() {
 }
 
 async function onScanSuccess(code) {
-  const isbn = (code || "").replace(/[^0-9Xx]/g, "");
+  let isbn = (code || "").replace(/[^0-9Xx]/g, "");
+  // unele coduri de bare au un mic adaos lipit (preț) — păstrăm doar ISBN-ul de 13 cifre
+  if (isbn.length > 13) isbn = isbn.slice(0, 13);
+
   await closeScanner();
+  clearScanHelp();
   showStatus("Cod citit: " + isbn + " — caut cartea...");
+
   const info = await lookupISBN(isbn);
   if (info && info.title) {
     titleEl.value = info.title;
     if (info.author) authorEl.value = info.author;
     showStatus("✅ Am găsit: " + info.title + ". Verifică și apasă butonul Adaugă.");
   } else {
-    showStatus(
-      "Nu am găsit cartea automat (cod " + isbn + "). Scrie titlul manual.",
-      true
-    );
+    showStatus("Nu am găsit titlul automat pentru acest cod.", true);
+    showScanHelp(isbn);
   }
   titleEl.focus();
+}
+
+// --- Ajutor când nu găsim cartea automat: link de căutare pe Google ---
+function clearScanHelp() {
+  if (!scanHelp) return;
+  scanHelp.hidden = true;
+  scanHelp.innerHTML = "";
+}
+
+function showScanHelp(isbn) {
+  if (!scanHelp) return;
+  scanHelp.innerHTML = "";
+
+  const txt = document.createElement("span");
+  txt.textContent =
+    "Cod scanat: " + isbn + ". Caut-o aici, apoi scrie titlul mai jos 👇";
+
+  const link = document.createElement("a");
+  link.href =
+    "https://www.google.com/search?q=" + encodeURIComponent("ISBN " + isbn + " carte");
+  link.target = "_blank";
+  link.rel = "noopener";
+  link.className = "scan-help-link";
+  link.textContent = "🔍 Caută pe Google";
+
+  scanHelp.appendChild(txt);
+  scanHelp.appendChild(link);
+  scanHelp.hidden = false;
 }
 
 // --- Caută titlul/autorul după ISBN (Google Books, apoi OpenLibrary) ---
@@ -679,6 +711,7 @@ addForm.addEventListener("submit", async (e) => {
     books.sort((a, b) => (a.title || "").localeCompare(b.title || "", "ro"));
     addForm.reset();
     coverPreviewEl.innerHTML = "";
+    clearScanHelp();
     titleEl.focus();
     showStatus("✅ Carte adăugată!");
     render();

@@ -360,6 +360,25 @@ li.editing::before { display: none; }
 .btn-scan:hover { filter: brightness(1.12); }
 .btn-scan:active { transform: translateY(1px); }
 
+.scan-help {
+  background: #fff7e9;
+  border: 1px solid #f0dcb4;
+  border-radius: 12px;
+  padding: 11px 13px;
+  font-size: 0.88rem;
+  color: #8a6d2f;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+.scan-help[hidden] { display: none; }
+.scan-help-link {
+  align-self: flex-start;
+  color: var(--accent-dark);
+  font-weight: 600;
+  text-decoration: underline;
+}
+
 .or-divider {
   display: flex;
   align-items: center;
