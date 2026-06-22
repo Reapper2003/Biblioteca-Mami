@@ -27,6 +27,13 @@
         <form id="add-form">
           <input type="text" id="title" placeholder="Titlul cărții" required autocomplete="off" />
           <input type="text" id="author" placeholder="Autorul (opțional)" autocomplete="off" />
+
+          <label class="file-btn" for="cover">
+            <span class="file-btn-label">📷 Adaugă o poză (opțional)</span>
+          </label>
+          <input type="file" id="cover" accept="image/*" hidden />
+          <div id="cover-preview" class="cover-preview"></div>
+
           <button type="submit" class="btn-primary">Adaugă în bibliotecă</button>
         </form>
       </section>
@@ -51,7 +58,7 @@
     </main>
 
     <footer>
-      <p>Apasă pe 🗑️ ca să scoți o carte din listă.</p>
+      <p>Apasă pe ✏️ ca să modifici o carte, sau pe 🗑️ ca s-o scoți din listă.</p>
     </footer>
   </div>
 
