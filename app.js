@@ -34,6 +34,8 @@ const loanedCountEl = document.getElementById("loaned-count");
 const statsContentEl = document.getElementById("stats-content");
 const dupListEl = document.getElementById("duplicates-list");
 const dupCountEl = document.getElementById("dup-count");
+const storageContentEl = document.getElementById("storage-content");
+const storageRefreshBtn = document.getElementById("storage-refresh");
 
 // panou detaliu
 const detailModal = document.getElementById("detail-modal");
@@ -64,6 +66,8 @@ let db = null;
 let editingId = null;
 let detailBook = null;
 let view = localStorage.getItem("view") || "list";
+let storageCache = null;
+let storageLoading = false;
 
 // ---------- Configurare ----------
 function configOK() {
@@ -616,6 +620,63 @@ function renderDuplicates() {
   }
 }
 
+// ---------- SPAȚIU FOLOSIT ----------
+function fmtMB(bytes) { return (bytes / 1048576).toFixed(1); }
+
+async function computeStorageBytes() {
+  let total = 0, count = 0, offset = 0;
+  const pageSize = 1000;
+  while (true) {
+    const { data, error } = await db.storage.from(BUCKET).list("", { limit: pageSize, offset });
+    if (error) throw error;
+    if (!data || data.length === 0) break;
+    for (const f of data) {
+      if (f.metadata && typeof f.metadata.size === "number") { total += f.metadata.size; count++; }
+    }
+    if (data.length < pageSize) break;
+    offset += pageSize;
+  }
+  return { bytes: total, count };
+}
+
+async function renderStorageUsage(force) {
+  if (!db || !storageContentEl) return;
+  if (storageLoading) return;
+  if (storageCache && !force) { paintStorage(storageCache); return; }
+  storageLoading = true;
+  storageContentEl.innerHTML = '<p class="hint">Se calculează spațiul folosit...</p>';
+  try {
+    storageCache = await computeStorageBytes();
+    paintStorage(storageCache);
+  } catch (e) {
+    storageContentEl.innerHTML = '<p class="usage-note" style="color:var(--danger)">Nu am putut calcula spațiul pozelor: ' + (e.message || e) + "</p>";
+  } finally { storageLoading = false; }
+}
+
+function paintStorage(s) {
+  const limitBytes = 1024 * 1024 * 1024; // 1 GB
+  const pct = Math.min(100, (s.bytes / limitBytes) * 100);
+  let level = "ok";
+  if (pct >= 90) level = "danger"; else if (pct >= 70) level = "warn";
+  const col = collectionBooks().length;
+  const withPhoto = books.filter((b) => b.cover_url).length;
+  storageContentEl.innerHTML =
+    `<div class="usage-row"><span class="usage-label">📷 Poze (coperți)</span>` +
+    `<span class="usage-val">${fmtMB(s.bytes)} MB <span class="usage-max">/ 1024 MB</span></span></div>` +
+    `<div class="usage-bar"><div class="usage-fill lvl-${level}" style="width:${pct.toFixed(1)}%"></div></div>` +
+    `<p class="usage-note">${pct.toFixed(1)}% folosit · ${s.count} poze încărcate (${withPhoto} cărți au poză)</p>` +
+    `<div class="usage-row" style="margin-top:16px"><span class="usage-label">📚 Cărți în colecție</span>` +
+    `<span class="usage-val">${col}</span></div>` +
+    `<p class="usage-note">Textul cărților ocupă foarte puțin. Limita de care te-ai putea apropia este cea de poze (1 GB) — la ritmul actual ai loc de mii de poze.</p>` +
+    (level === "danger"
+      ? '<p class="usage-warn">⚠️ Te apropii de limita de poze! Gândește-te să faci un backup sau să ștergi poze vechi.</p>'
+      : level === "warn"
+        ? '<p class="usage-warn">📌 Ai trecut de 70% din spațiul de poze — ține un ochi pe el.</p>'
+        : "");
+}
+
+if (storageRefreshBtn) storageRefreshBtn.addEventListener("click", () => renderStorageUsage(true));
+
 // ============================================================
 //  ADĂUGARE (cu verificare duplicate)
 // ============================================================
@@ -710,6 +771,7 @@ function showPage(name) {
     s.hidden = s.getAttribute("data-page") !== name;
   });
   window.scrollTo({ top: 0, behavior: "smooth" });
+  if (name === "stats") renderStorageUsage(false);
 }
 pageNav.addEventListener("change", () => showPage(pageNav.value));
 showPage(pageNav.value);

@@ -292,15 +292,15 @@ li.editing { display: block; padding: 16px; background: var(--card-2); }
 .badge-sold { background: rgba(226, 71, 58, 0.16); color: #f0a098; }
 
 /* ---------- Ștampile + insignă pe coperta de raft ---------- */
-.shelf-cover { position: relative; }
+.shelf-cover { position: relative; container-type: inline-size; }
 .stamp {
-  position: absolute; left: 50%; top: 56%;
-  transform: translate(-50%, -50%) rotate(-15deg);
-  border: 3px solid; border-radius: 6px; padding: 4px 12px;
-  font-size: 1.15rem; font-weight: 800; letter-spacing: 1.5px; text-transform: uppercase;
+  position: absolute; left: 50%; top: 54%;
+  transform: translate(-50%, -50%) rotate(-13deg);
+  border: 0.13em solid; border-radius: 0.2em; padding: 0.12em 0.4em;
+  font-size: 16cqw; font-weight: 800; letter-spacing: 0.02em; text-transform: uppercase;
   pointer-events: none; white-space: nowrap;
-  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.65);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.7);
+  box-shadow: 0 2px 9px rgba(0, 0, 0, 0.45);
 }
 .stamp-sold { color: #ff6a5c; border-color: #ff6a5c; background: rgba(38, 6, 4, 0.5); }
 .stamp-don { color: #ffb04d; border-color: #ffb04d; background: rgba(38, 22, 2, 0.5); }
@@ -343,6 +343,19 @@ li.editing { display: block; padding: 16px; background: var(--card-2); }
 .dm-star:hover { transform: scale(1.12); }
 .dm-who { margin-top: 8px; }
 #dm-close { width: 100%; margin-top: 18px; }
+
+/* ---------- Spațiu folosit ---------- */
+.usage-row { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; }
+.usage-label { font-size: 0.92rem; color: var(--ink); }
+.usage-val { font-size: 0.95rem; font-weight: 700; color: var(--accent); }
+.usage-max { color: var(--muted); font-weight: 400; font-size: 0.8rem; }
+.usage-bar { height: 14px; border-radius: 20px; background: #10180f; overflow: hidden; margin: 9px 0 4px; }
+.usage-fill { height: 100%; border-radius: 20px; transition: width 0.35s ease; min-width: 3px; }
+.usage-fill.lvl-ok { background: #6fbf8c; }
+.usage-fill.lvl-warn { background: var(--accent); }
+.usage-fill.lvl-danger { background: #e2473a; }
+.usage-note { font-size: 0.8rem; color: var(--muted); margin: 4px 0 0; line-height: 1.4; }
+.usage-warn { font-size: 0.85rem; color: var(--accent); margin: 10px 0 0; font-weight: 600; }
 
 /* ---------- Empty / Footer ---------- */
 .empty {
