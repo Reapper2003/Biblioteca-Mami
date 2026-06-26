@@ -143,12 +143,61 @@
           <h2><span class="ico">📊</span> Statistici</h2>
           <div id="stats-content"></div>
         </div>
+        <div class="card">
+          <div class="list-header">
+            <h2><span class="ico">🔁</span> Posibile duplicate</h2>
+            <span id="dup-count" class="count">0</span>
+          </div>
+          <p class="hint">Cărți cu același titlu pe care le ai de mai multe ori.</p>
+          <ul id="duplicates-list"></ul>
+        </div>
       </section>
     </main>
 
     <footer>
       <p>Apasă pe ✏️ ca să modifici o carte, sau pe 🗑️ ca s-o scoți din listă.</p>
     </footer>
+  </div>
+
+  <!-- Panou de detaliu (status / notă / stare) -->
+  <div id="detail-modal" class="modal" hidden>
+    <div class="modal-box detail-box">
+      <button type="button" id="dm-x" class="dm-x" aria-label="Închide">✕</button>
+      <div class="dm-head">
+        <div id="dm-cover" class="dm-cover"></div>
+        <div class="dm-headtext">
+          <div id="dm-title" class="dm-title"></div>
+          <div id="dm-author" class="dm-author"></div>
+        </div>
+      </div>
+
+      <div class="dm-label">Status de citire</div>
+      <div id="dm-status" class="pill-row">
+        <button type="button" class="pill" data-v="de_citit">📋 De citit</button>
+        <button type="button" class="pill" data-v="in_curs">📖 În curs</button>
+        <button type="button" class="pill" data-v="citita">✅ Citită</button>
+      </div>
+
+      <div class="dm-label">Notă</div>
+      <div id="dm-stars" class="dm-stars">
+        <span class="dm-star" data-i="1">★</span>
+        <span class="dm-star" data-i="2">★</span>
+        <span class="dm-star" data-i="3">★</span>
+        <span class="dm-star" data-i="4">★</span>
+        <span class="dm-star" data-i="5">★</span>
+      </div>
+
+      <div class="dm-label">Unde e cartea</div>
+      <div id="dm-state" class="pill-row">
+        <button type="button" class="pill" data-v="home">🏠 La mine</button>
+        <button type="button" class="pill" data-v="loaned">📕 Împrumutată</button>
+        <button type="button" class="pill" data-v="donated">🎁 Donată</button>
+        <button type="button" class="pill" data-v="sold">💰 Vândută</button>
+      </div>
+      <input type="text" id="dm-who" class="dm-who" placeholder="Cui ai împrumutat-o?" hidden autocomplete="off" />
+
+      <button type="button" id="dm-close" class="btn-primary">Gata</button>
+    </div>
   </div>
 
   <!-- Biblioteci externe -->

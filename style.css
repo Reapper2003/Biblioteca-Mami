@@ -270,6 +270,78 @@ li.editing { display: block; padding: 16px; background: var(--card-2); }
 .dot-in_curs { background: var(--accent); }
 .dot-de_citit { background: #7e9ad8; }
 
+/* ---------- Afișare read-only (status / steluțe) ---------- */
+.clickable { cursor: pointer; }
+
+.status-pill { font-size: 0.78rem; font-weight: 600; padding: 2px 9px; border-radius: 20px; }
+.status-pill.status-de_citit { background: rgba(120, 150, 220, 0.16); color: #aac2f0; }
+.status-pill.status-in_curs { background: rgba(216, 166, 87, 0.18); color: #e6c07a; }
+.status-pill.status-citita { background: rgba(120, 200, 150, 0.16); color: #8fd6a6; }
+
+.stars-ro { display: inline-flex; gap: 1px; }
+.stars-ro .star { cursor: default; font-size: 0.95rem; color: #3c4a40; }
+.stars-ro .star.on { color: var(--accent); }
+.stars-ro .star:hover { transform: none; }
+.shelf-meta { justify-content: center; }
+.shelf-card .stars-ro .star { font-size: 0.9rem; }
+
+/* ---------- Insigne stare (în listă) ---------- */
+.state-badge { display: inline-block; margin-top: 5px; font-size: 0.74rem; padding: 2px 8px; border-radius: 20px; }
+.badge-loaned { background: rgba(224, 121, 107, 0.16); color: #e6b9a8; }
+.badge-donated { background: rgba(232, 144, 47, 0.16); color: #f0b878; }
+.badge-sold { background: rgba(226, 71, 58, 0.16); color: #f0a098; }
+
+/* ---------- Ștampile + insignă pe coperta de raft ---------- */
+.shelf-cover { position: relative; }
+.stamp {
+  position: absolute; left: 50%; top: 60%;
+  transform: translate(-50%, -50%) rotate(-17deg);
+  border: 2.5px solid; border-radius: 4px; padding: 1px 8px;
+  font-size: 0.92rem; font-weight: 800; letter-spacing: 1px;
+  opacity: 0.92; pointer-events: none; white-space: nowrap;
+}
+.stamp-sold { color: #e2473a; border-color: #e2473a; background: rgba(226, 71, 58, 0.13); }
+.stamp-don { color: #e8902f; border-color: #e8902f; background: rgba(232, 144, 47, 0.13); }
+.shelf-lbadge {
+  position: absolute; left: 5px; bottom: 5px; max-width: 88%;
+  font-size: 0.62rem; padding: 1px 6px; border-radius: 10px;
+  color: #fff; background: #c2685a; line-height: 1.4;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap; pointer-events: none;
+}
+
+.dup-badge { background: rgba(226, 71, 58, 0.16); color: #f0a098; border-color: rgba(226, 71, 58, 0.3); }
+
+/* ---------- Panou de detaliu ---------- */
+.modal {
+  position: fixed; inset: 0; background: rgba(7, 11, 9, 0.72);
+  display: flex; align-items: center; justify-content: center; padding: 16px; z-index: 60;
+}
+.modal[hidden] { display: none; }
+.modal-box {
+  background: var(--card); border: 1px solid var(--line); border-radius: 18px;
+  padding: 20px; width: 100%; max-width: 420px; box-shadow: var(--shadow);
+  position: relative; max-height: 90vh; overflow: auto;
+}
+.dm-x { position: absolute; top: 10px; right: 10px; background: transparent; color: var(--muted); font-size: 1.05rem; padding: 6px 9px; border-radius: 8px; }
+.dm-x:hover { background: rgba(255, 255, 255, 0.06); }
+.dm-head { display: flex; gap: 12px; align-items: center; padding-right: 26px; }
+.dm-cover .cover { width: 46px; height: 62px; }
+.dm-title { font-family: "Fraunces", Georgia, serif; font-size: 1.05rem; color: #f1e9d8; line-height: 1.2; }
+.dm-author { font-size: 0.85rem; color: var(--muted); }
+.dm-label { font-size: 0.78rem; color: var(--muted); margin: 14px 0 7px; }
+.pill-row { display: flex; gap: 6px; flex-wrap: wrap; }
+.pill {
+  cursor: pointer; border: 1px solid var(--line); background: transparent; color: #cdd6cd;
+  border-radius: 20px; padding: 8px 12px; font-size: 0.85rem; font-weight: 600; font-family: inherit;
+}
+.pill.on { background: var(--accent); color: #241803; border-color: var(--accent); }
+.dm-stars { display: flex; gap: 3px; }
+.dm-star { cursor: pointer; font-size: 1.7rem; color: #3c4a40; line-height: 1; transition: transform 0.1s, color 0.1s; }
+.dm-star.on { color: var(--accent); }
+.dm-star:hover { transform: scale(1.12); }
+.dm-who { margin-top: 8px; }
+#dm-close { width: 100%; margin-top: 18px; }
+
 /* ---------- Empty / Footer ---------- */
 .empty {
   display: block; color: var(--muted); text-align: center; padding: 30px 16px;

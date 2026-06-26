@@ -3,7 +3,7 @@
 const statusEl = document.getElementById("status");
 const pageNav = document.getElementById("page-nav");
 
-// colecție (Cărțile mele)
+// colecție
 const listEl = document.getElementById("book-list");
 const countEl = document.getElementById("count");
 const searchEl = document.getElementById("search");
@@ -19,7 +19,7 @@ const addStatusEl = document.getElementById("add-status");
 const viewListBtn = document.getElementById("view-list");
 const viewShelfBtn = document.getElementById("view-shelf");
 
-// listă de dorințe
+// dorințe
 const wishForm = document.getElementById("wishlist-form");
 const wTitleEl = document.getElementById("w-title");
 const wAuthorEl = document.getElementById("w-author");
@@ -28,20 +28,26 @@ const wCoverPreviewEl = document.getElementById("w-cover-preview");
 const wishListEl = document.getElementById("wishlist-list");
 const wishCountEl = document.getElementById("wishlist-count");
 
-// împrumutate + statistici
+// împrumutate / statistici / duplicate
 const loanedListEl = document.getElementById("loaned-list");
 const loanedCountEl = document.getElementById("loaned-count");
 const statsContentEl = document.getElementById("stats-content");
+const dupListEl = document.getElementById("duplicates-list");
+const dupCountEl = document.getElementById("dup-count");
+
+// panou detaliu
+const detailModal = document.getElementById("detail-modal");
+const dmCover = document.getElementById("dm-cover");
+const dmTitle = document.getElementById("dm-title");
+const dmAuthor = document.getElementById("dm-author");
+const dmStatus = document.getElementById("dm-status");
+const dmStars = document.getElementById("dm-stars");
+const dmState = document.getElementById("dm-state");
+const dmWho = document.getElementById("dm-who");
 
 const BUCKET = "covers";
+const STATUSES = { de_citit: "📋 De citit", in_curs: "📖 În curs", citita: "✅ Citită" };
 
-const STATUSES = {
-  de_citit: "📋 De citit",
-  in_curs: "📖 În curs",
-  citita: "✅ Citită",
-};
-
-// culori pentru cărțile fără poză (stil raft)
 const SHELF_COLORS = [
   ["#7d3f4d", "#f6dfe4"], ["#3f5a7d", "#dceaf6"], ["#3f7d63", "#dcf6e9"],
   ["#5a4f7d", "#e7e2f6"], ["#7d6a3f", "#f6ecda"], ["#7d5a3f", "#f6e6da"],
@@ -56,6 +62,7 @@ function pickColor(text) {
 let books = [];
 let db = null;
 let editingId = null;
+let detailBook = null;
 let view = localStorage.getItem("view") || "list";
 
 // ---------- Configurare ----------
@@ -87,7 +94,6 @@ async function loadBooks() {
   renderAll();
 }
 
-// ---------- Selectoare de listă ----------
 const collectionBooks = () => books.filter((b) => !b.wishlist);
 const wishlistBooks = () => books.filter((b) => b.wishlist);
 const loanedBooks = () => collectionBooks().filter((b) => b.loaned_to);
@@ -120,7 +126,7 @@ async function uploadCover(file) {
 }
 
 // ============================================================
-//  RATING + STATUS + ÎMPRUMUT (acțiuni rapide)
+//  ACTUALIZARE
 // ============================================================
 async function updateBook(book, patch) {
   const { data, error } = await db.from("books").update(patch).eq("id", book.id).select();
@@ -129,48 +135,16 @@ async function updateBook(book, patch) {
   if (idx !== -1 && data && data[0]) books[idx] = data[0];
   return true;
 }
-async function setRating(book, value) {
-  const newVal = book.rating === value ? null : value;
-  if (await updateBook(book, { rating: newVal })) renderAll();
-}
-async function setStatus(book, value) {
-  if (await updateBook(book, { status: value || null })) renderAll();
-}
 
-function buildStars(book) {
-  const wrap = document.createElement("div");
-  wrap.className = "stars";
-  for (let i = 1; i <= 5; i++) {
-    const s = document.createElement("span");
-    s.className = "star" + (book.rating >= i ? " on" : "");
-    s.textContent = "★";
-    s.title = i + " din 5";
-    s.addEventListener("click", () => setRating(book, i));
-    wrap.appendChild(s);
-  }
-  return wrap;
-}
-function buildStatusSelect(book) {
-  const sel = document.createElement("select");
-  sel.className = "status-select inline status-" + (book.status || "none");
-  const o0 = document.createElement("option");
-  o0.value = ""; o0.textContent = "▫️ Fără status";
-  sel.appendChild(o0);
-  for (const [code, label] of Object.entries(STATUSES)) {
-    const o = document.createElement("option");
-    o.value = code; o.textContent = label;
-    sel.appendChild(o);
-  }
-  sel.value = book.status || "";
-  sel.addEventListener("change", () => setStatus(book, sel.value));
-  return sel;
-}
-function buildCover(url, title) {
+// ============================================================
+//  ELEMENTE REUTILIZABILE
+// ============================================================
+function buildCover(book) {
   const wrap = document.createElement("div");
   wrap.className = "cover";
-  if (url) {
+  if (book.cover_url) {
     const img = document.createElement("img");
-    img.src = url; img.alt = title || "copertă"; img.loading = "lazy";
+    img.src = book.cover_url; img.alt = book.title || "copertă"; img.loading = "lazy";
     wrap.appendChild(img);
   } else {
     wrap.classList.add("cover-empty");
@@ -178,24 +152,139 @@ function buildCover(url, title) {
   }
   return wrap;
 }
-function buildLoanedBadge(book) {
-  if (!book.loaned_to) return null;
+
+function buildStateBadge(book) {
+  let cls, txt;
+  if (book.loaned_to) { cls = "badge-loaned"; txt = "📕 La " + book.loaned_to; }
+  else if (book.disposition === "donated") { cls = "badge-donated"; txt = "🎁 Donată"; }
+  else if (book.disposition === "sold") { cls = "badge-sold"; txt = "💰 Vândută"; }
+  else return null;
   const b = document.createElement("span");
-  b.className = "loaned-badge";
-  b.textContent = "📕 La " + book.loaned_to;
+  b.className = "state-badge " + cls;
+  b.textContent = txt;
   return b;
 }
 
+function buildStatusDisplay(book) {
+  if (!book.status) return null;
+  const s = document.createElement("span");
+  s.className = "status-pill status-" + book.status;
+  s.textContent = STATUSES[book.status] || "";
+  return s;
+}
+function buildStarsDisplay(book) {
+  if (!book.rating) return null;
+  const w = document.createElement("div");
+  w.className = "stars-ro";
+  for (let i = 1; i <= 5; i++) {
+    const s = document.createElement("span");
+    s.className = "star" + (book.rating >= i ? " on" : "");
+    s.textContent = "★";
+    w.appendChild(s);
+  }
+  return w;
+}
+function buildMeta(book) {
+  const st = buildStatusDisplay(book);
+  const stars = buildStarsDisplay(book);
+  if (!st && !stars) return null;
+  const meta = document.createElement("div");
+  meta.className = "book-meta";
+  if (st) meta.appendChild(st);
+  if (stars) meta.appendChild(stars);
+  return meta;
+}
+
+function buildActions(book) {
+  const actions = document.createElement("div");
+  actions.className = "actions";
+  const edit = document.createElement("button");
+  edit.className = "btn-edit"; edit.title = "Modifică titlu / autor / poză"; edit.textContent = "✏️";
+  edit.addEventListener("click", (e) => { e.stopPropagation(); editingId = book.id; renderAll(); });
+  const del = document.createElement("button");
+  del.className = "btn-delete"; del.title = "Șterge"; del.textContent = "🗑️";
+  del.addEventListener("click", (e) => { e.stopPropagation(); deleteBook(book); });
+  actions.appendChild(edit);
+  actions.appendChild(del);
+  return actions;
+}
+
 // ============================================================
-//  RENDER GENERAL
+//  PANOU DE DETALIU
+// ============================================================
+function setPillGroup(container, v) {
+  Array.prototype.forEach.call(container.children, (p) => p.classList.toggle("on", p.dataset.v === v));
+}
+function setDmStars(n) {
+  Array.prototype.forEach.call(dmStars.children, (s) => s.classList.toggle("on", parseInt(s.dataset.i, 10) <= n));
+}
+function openDetail(book) {
+  detailBook = book;
+  dmCover.innerHTML = "";
+  dmCover.appendChild(buildCover(book));
+  dmTitle.textContent = book.title;
+  dmAuthor.textContent = book.author || "";
+  setPillGroup(dmStatus, book.status || "");
+  setDmStars(book.rating || 0);
+  const state = book.loaned_to ? "loaned" : (book.disposition || "home");
+  setPillGroup(dmState, state);
+  dmWho.hidden = state !== "loaned";
+  dmWho.value = book.loaned_to || "";
+  detailModal.hidden = false;
+}
+function closeDetail() { detailModal.hidden = true; detailBook = null; }
+
+async function updateDetail(patch) {
+  if (!detailBook) return;
+  if (await updateBook(detailBook, patch)) {
+    detailBook = books.find((b) => b.id === detailBook.id) || detailBook;
+    renderAll();
+  }
+}
+
+dmStatus.addEventListener("click", async (e) => {
+  const p = e.target.closest(".pill"); if (!p || !detailBook) return;
+  const v = p.classList.contains("on") ? null : p.dataset.v;
+  await updateDetail({ status: v });
+  setPillGroup(dmStatus, v || "");
+});
+dmStars.addEventListener("click", async (e) => {
+  const s = e.target.closest(".dm-star"); if (!s || !detailBook) return;
+  const i = parseInt(s.dataset.i, 10);
+  const v = detailBook.rating === i ? null : i;
+  await updateDetail({ rating: v });
+  setDmStars(v || 0);
+});
+dmState.addEventListener("click", async (e) => {
+  const p = e.target.closest(".pill"); if (!p || !detailBook) return;
+  const v = p.dataset.v;
+  let patch;
+  if (v === "home") patch = { loaned_to: null, disposition: null };
+  else if (v === "loaned") patch = { disposition: null };
+  else if (v === "donated") patch = { disposition: "donated", loaned_to: null };
+  else patch = { disposition: "sold", loaned_to: null };
+  await updateDetail(patch);
+  setPillGroup(dmState, v);
+  dmWho.hidden = v !== "loaned";
+  if (v === "loaned") { dmWho.value = detailBook.loaned_to || ""; dmWho.focus(); }
+});
+dmWho.addEventListener("change", async () => {
+  await updateDetail({ loaned_to: dmWho.value.trim() || null });
+});
+document.getElementById("dm-close").addEventListener("click", closeDetail);
+document.getElementById("dm-x").addEventListener("click", closeDetail);
+detailModal.addEventListener("click", (e) => { if (e.target === detailModal) closeDetail(); });
+
+// ============================================================
+//  RENDER
 // ============================================================
 function renderAll() {
   renderCollection();
   renderWishlist();
   renderLoaned();
   renderStats();
+  renderDuplicates();
 }
-
 function emptyRow(container, text) {
   const li = document.createElement("li");
   li.className = "empty";
@@ -218,15 +307,10 @@ viewShelfBtn.classList.toggle("active", view === "shelf");
 
 function renderCollection() {
   let arr = collectionBooks();
-
   const q = searchEl.value.trim().toLowerCase();
-  if (q) arr = arr.filter((b) =>
-    (b.title || "").toLowerCase().includes(q) || (b.author || "").toLowerCase().includes(q)
-  );
-
+  if (q) arr = arr.filter((b) => (b.title || "").toLowerCase().includes(q) || (b.author || "").toLowerCase().includes(q));
   const fs = filterStatusEl.value;
   if (fs) arr = arr.filter((b) => b.status === fs);
-
   const fr = parseInt(filterRatingEl.value, 10);
   if (fr) arr = arr.filter((b) => (b.rating || 0) >= fr);
 
@@ -240,7 +324,6 @@ function renderCollection() {
   countEl.textContent = arr.length;
   listEl.className = view === "shelf" ? "shelf-view" : "";
   listEl.innerHTML = "";
-
   if (arr.length === 0) {
     emptyRow(listEl, q || fs || fr ? "Nicio carte pentru aceste filtre." : "Încă nu ai nicio carte. Adaugă prima carte mai sus! 📖");
     return;
@@ -254,49 +337,28 @@ function renderCollection() {
 
 function buildRow(book) {
   const li = document.createElement("li");
-  li.appendChild(buildCover(book.cover_url, book.title));
+  const cover = buildCover(book);
+  cover.classList.add("clickable");
+  cover.addEventListener("click", () => openDetail(book));
+  li.appendChild(cover);
 
   const info = document.createElement("div");
-  info.className = "book-info";
-
+  info.className = "book-info clickable";
+  info.addEventListener("click", () => openDetail(book));
   const title = document.createElement("div");
-  title.className = "book-title";
-  title.textContent = book.title;
+  title.className = "book-title"; title.textContent = book.title;
   info.appendChild(title);
-
   if (book.author) {
-    const a = document.createElement("div");
-    a.className = "book-author";
-    a.textContent = book.author;
-    info.appendChild(a);
+    const a = document.createElement("div"); a.className = "book-author"; a.textContent = book.author; info.appendChild(a);
   }
-
-  const badge = buildLoanedBadge(book);
+  const badge = buildStateBadge(book);
   if (badge) info.appendChild(badge);
-
-  const meta = document.createElement("div");
-  meta.className = "book-meta";
-  meta.appendChild(buildStatusSelect(book));
-  meta.appendChild(buildStars(book));
-  info.appendChild(meta);
+  const meta = buildMeta(book);
+  if (meta) info.appendChild(meta);
   li.appendChild(info);
 
   li.appendChild(buildActions(book));
   return li;
-}
-
-function buildActions(book) {
-  const actions = document.createElement("div");
-  actions.className = "actions";
-  const edit = document.createElement("button");
-  edit.className = "btn-edit"; edit.title = "Modifică"; edit.textContent = "✏️";
-  edit.addEventListener("click", () => { editingId = book.id; renderAll(); });
-  const del = document.createElement("button");
-  del.className = "btn-delete"; del.title = "Șterge"; del.textContent = "🗑️";
-  del.addEventListener("click", () => deleteBook(book));
-  actions.appendChild(edit);
-  actions.appendChild(del);
-  return actions;
 }
 
 function buildShelfCard(book) {
@@ -304,7 +366,7 @@ function buildShelfCard(book) {
   li.className = "shelf-card";
 
   const cover = document.createElement("div");
-  cover.className = "shelf-cover";
+  cover.className = "shelf-cover clickable";
   if (book.cover_url) {
     const img = document.createElement("img");
     img.src = book.cover_url; img.alt = book.title || ""; img.loading = "lazy";
@@ -317,28 +379,36 @@ function buildShelfCard(book) {
     t.className = "shelf-cover-title"; t.textContent = book.title;
     cover.appendChild(t);
   }
-  cover.addEventListener("click", () => { editingId = book.id; renderAll(); });
+  // ștampile / insignă peste copertă
+  if (book.disposition === "sold") cover.appendChild(makeStamp("VÂNDUT", "stamp-sold"));
+  else if (book.disposition === "donated") cover.appendChild(makeStamp("DONAT", "stamp-don"));
+  if (book.loaned_to) {
+    const lb = document.createElement("span");
+    lb.className = "shelf-lbadge"; lb.textContent = "📕 " + book.loaned_to;
+    cover.appendChild(lb);
+  }
+  cover.addEventListener("click", () => openDetail(book));
   li.appendChild(cover);
 
   const title = document.createElement("div");
   title.className = "shelf-title"; title.textContent = book.title;
   li.appendChild(title);
-
   if (book.author) {
-    const a = document.createElement("div");
-    a.className = "shelf-author"; a.textContent = book.author;
-    li.appendChild(a);
+    const a = document.createElement("div"); a.className = "shelf-author"; a.textContent = book.author; li.appendChild(a);
   }
-  const badge = buildLoanedBadge(book);
-  if (badge) li.appendChild(badge);
-
-  li.appendChild(buildStars(book));
-  li.appendChild(buildStatusSelect(book));
+  const meta = buildMeta(book);
+  if (meta) { meta.classList.add("shelf-meta"); li.appendChild(meta); }
   li.appendChild(buildActions(book));
   return li;
 }
+function makeStamp(text, cls) {
+  const s = document.createElement("span");
+  s.className = "stamp " + cls;
+  s.textContent = text;
+  return s;
+}
 
-// ---------- Editare (titlu / autor / poză / împrumut) ----------
+// ---------- Editare titlu / autor / poză ----------
 function buildEditRow(book) {
   const li = document.createElement("li");
   li.className = "editing";
@@ -347,13 +417,12 @@ function buildEditRow(book) {
 
   const tInput = document.createElement("input");
   tInput.type = "text"; tInput.value = book.title || ""; tInput.placeholder = "Titlul cărții"; tInput.required = true;
-
   const aInput = document.createElement("input");
   aInput.type = "text"; aInput.value = book.author || ""; aInput.placeholder = "Autorul (opțional)";
 
   const photoRow = document.createElement("div");
   photoRow.className = "edit-photo-row";
-  photoRow.appendChild(buildCover(book.cover_url, book.title));
+  photoRow.appendChild(buildCover(book));
   const photoLabel = document.createElement("label");
   photoLabel.className = "file-btn small";
   photoLabel.textContent = book.cover_url ? "🖼️ Schimbă poza" : "🖼️ Adaugă o poză";
@@ -372,14 +441,6 @@ function buildEditRow(book) {
     photoRow.appendChild(rm);
   }
 
-  // câmp de împrumut (doar pentru cărțile din colecție)
-  let loanInput = null;
-  if (!book.wishlist) {
-    loanInput = document.createElement("input");
-    loanInput.type = "text"; loanInput.value = book.loaned_to || "";
-    loanInput.placeholder = "Împrumutată lui... (gol = e la tine)";
-  }
-
   const actions = document.createElement("div");
   actions.className = "edit-actions";
   const save = document.createElement("button");
@@ -392,7 +453,6 @@ function buildEditRow(book) {
   form.appendChild(tInput);
   form.appendChild(aInput);
   form.appendChild(photoRow);
-  if (loanInput) form.appendChild(loanInput);
   form.appendChild(actions);
 
   form.addEventListener("submit", async (e) => {
@@ -401,16 +461,13 @@ function buildEditRow(book) {
     if (!newTitle) return;
     save.disabled = true;
     const patch = { title: newTitle, author: aInput.value.trim() || null };
-    if (loanInput) patch.loaned_to = loanInput.value.trim() || null;
     try {
       if (fileInput.files[0]) { showStatus("Se încarcă poza..."); patch.cover_url = await uploadCover(fileInput.files[0]); }
       else if (removeCover) patch.cover_url = null;
       showStatus("Se salvează...");
       if (await updateBook(book, patch)) {
-        editingId = null;
-        showStatus("✅ Modificările au fost salvate!");
-        renderAll();
-      } else { save.disabled = false; }
+        editingId = null; showStatus("✅ Modificările au fost salvate!"); renderAll();
+      } else save.disabled = false;
     } catch (err) {
       save.disabled = false;
       showStatus("Nu am putut salva: " + (err.message || err), true);
@@ -421,7 +478,7 @@ function buildEditRow(book) {
   return li;
 }
 
-// ---------- LISTĂ DE DORINȚE ----------
+// ---------- DORINȚE ----------
 function renderWishlist() {
   const arr = wishlistBooks().slice().sort((a, b) => (a.title || "").localeCompare(b.title || "", "ro"));
   wishCountEl.textContent = arr.length;
@@ -430,7 +487,7 @@ function renderWishlist() {
   for (const book of arr) {
     if (book.id === editingId) { wishListEl.appendChild(buildEditRow(book)); continue; }
     const li = document.createElement("li");
-    li.appendChild(buildCover(book.cover_url, book.title));
+    li.appendChild(buildCover(book));
     const info = document.createElement("div");
     info.className = "book-info";
     const t = document.createElement("div"); t.className = "book-title"; t.textContent = book.title; info.appendChild(t);
@@ -455,10 +512,7 @@ function renderWishlist() {
 }
 async function boughtBook(book) {
   showStatus("Se mută în colecție...");
-  if (await updateBook(book, { wishlist: false })) {
-    showStatus("🎉 „" + book.title + "” a fost mutată în colecția ta!");
-    renderAll();
-  }
+  if (await updateBook(book, { wishlist: false })) { showStatus("🎉 „" + book.title + "” a fost mutată în colecție!"); renderAll(); }
 }
 
 // ---------- ÎMPRUMUTATE ----------
@@ -469,19 +523,18 @@ function renderLoaned() {
   if (arr.length === 0) { emptyRow(loanedListEl, "Nicio carte împrumutată momentan. 📕"); return; }
   for (const book of arr) {
     const li = document.createElement("li");
-    li.appendChild(buildCover(book.cover_url, book.title));
+    li.appendChild(buildCover(book));
     const info = document.createElement("div");
     info.className = "book-info";
     const t = document.createElement("div"); t.className = "book-title"; t.textContent = book.title; info.appendChild(t);
     if (book.author) { const a = document.createElement("div"); a.className = "book-author"; a.textContent = book.author; info.appendChild(a); }
     const who = document.createElement("div"); who.className = "loaned-who"; who.textContent = "📕 La " + book.loaned_to; info.appendChild(who);
     li.appendChild(info);
-
     const back = document.createElement("button");
     back.className = "btn-return"; back.textContent = "Returnată";
     back.addEventListener("click", async () => {
       showStatus("Se marchează returnată...");
-      if (await updateBook(book, { loaned_to: null })) { showStatus("✅ „" + book.title + "” a fost marcată ca returnată."); renderAll(); }
+      if (await updateBook(book, { loaned_to: null })) { showStatus("✅ „" + book.title + "” a fost returnată."); renderAll(); }
     });
     li.appendChild(back);
     loanedListEl.appendChild(li);
@@ -500,10 +553,11 @@ function renderStats() {
   const deCitit = col.filter((b) => b.status === "de_citit").length;
   const rated = col.filter((b) => b.rating);
   const medie = rated.length ? (rated.reduce((s, b) => s + b.rating, 0) / rated.length).toFixed(1) : "—";
+  const donate = col.filter((b) => b.disposition === "donated").length;
+  const vandute = col.filter((b) => b.disposition === "sold").length;
 
-  // autor favorit (cel mai frecvent)
   const counts = {};
-  for (const b of col) { if (b.author) counts[b.author] = (counts[b.author] || 0) + 1; }
+  for (const b of col) if (b.author) counts[b.author] = (counts[b.author] || 0) + 1;
   let topAuthor = "—", topN = 0;
   for (const [a, n] of Object.entries(counts)) if (n > topN) { topAuthor = a; topN = n; }
 
@@ -513,37 +567,61 @@ function renderStats() {
   html += statCard("În curs", inCurs);
   html += statCard("De citit", deCitit);
   html += statCard("Notă medie", "★ " + medie);
-  html += statCard("În lista de dorințe", wishlistBooks().length);
+  html += statCard("În dorințe", wishlistBooks().length);
   html += statCard("Împrumutate", loanedBooks().length);
+  html += statCard("Donate", donate);
+  html += statCard("Vândute", vandute);
   html += "</div>";
-
   html += `<div class="stat-author"><span class="stat-author-label">Autorul tău cu cele mai multe cărți</span>
     <span class="stat-author-name">${topAuthor}${topN ? " (" + topN + ")" : ""}</span></div>`;
 
-  // bară pe status
-  const totalStatus = citite + inCurs + deCitit || 1;
+  const ts = citite + inCurs + deCitit || 1;
   html += `<div class="status-bar">
-    <div class="seg seg-citita" style="width:${(citite / totalStatus) * 100}%"></div>
-    <div class="seg seg-in_curs" style="width:${(inCurs / totalStatus) * 100}%"></div>
-    <div class="seg seg-de_citit" style="width:${(deCitit / totalStatus) * 100}%"></div>
+    <div class="seg seg-citita" style="width:${(citite / ts) * 100}%"></div>
+    <div class="seg seg-in_curs" style="width:${(inCurs / ts) * 100}%"></div>
+    <div class="seg seg-de_citit" style="width:${(deCitit / ts) * 100}%"></div>
   </div>
   <div class="status-legend">
     <span><i class="dot dot-citita"></i> Citite ${citite}</span>
     <span><i class="dot dot-in_curs"></i> În curs ${inCurs}</span>
     <span><i class="dot dot-de_citit"></i> De citit ${deCitit}</span>
   </div>`;
-
   statsContentEl.innerHTML = html;
 }
 
+// ---------- DUPLICATE ----------
+function renderDuplicates() {
+  const map = {};
+  for (const b of collectionBooks()) {
+    const k = (b.title || "").trim().toLowerCase();
+    if (!k) continue;
+    (map[k] = map[k] || []).push(b);
+  }
+  const dups = Object.values(map).filter((a) => a.length > 1).sort((a, b) => b.length - a.length);
+  dupCountEl.textContent = dups.length;
+  dupListEl.innerHTML = "";
+  if (dups.length === 0) { emptyRow(dupListEl, "Nicio carte duplicată. 👍"); return; }
+  for (const group of dups) {
+    const li = document.createElement("li");
+    li.appendChild(buildCover(group[0]));
+    const info = document.createElement("div");
+    info.className = "book-info";
+    const t = document.createElement("div"); t.className = "book-title"; t.textContent = group[0].title; info.appendChild(t);
+    if (group[0].author) { const a = document.createElement("div"); a.className = "book-author"; a.textContent = group[0].author; info.appendChild(a); }
+    li.appendChild(info);
+    const c = document.createElement("span"); c.className = "count dup-badge"; c.textContent = "× " + group.length;
+    li.appendChild(c);
+    dupListEl.appendChild(li);
+  }
+}
+
 // ============================================================
-//  ADĂUGARE (colecție + dorințe) cu verificare duplicate
+//  ADĂUGARE (cu verificare duplicate)
 // ============================================================
 function isDuplicate(title, inWishlist) {
   const t = title.trim().toLowerCase();
   return books.some((b) => !!b.wishlist === inWishlist && (b.title || "").trim().toLowerCase() === t);
 }
-
 function previewImage(inputEl, previewEl) {
   inputEl.addEventListener("change", () => {
     previewEl.innerHTML = "";
@@ -564,7 +642,6 @@ addForm.addEventListener("submit", async (e) => {
   const title = titleEl.value.trim();
   if (!title) return;
   if (isDuplicate(title, false) && !confirm(`Ai deja „${title}” în colecție. O adaugi oricum?`)) return;
-
   const btn = addForm.querySelector('button[type="submit"]');
   btn.disabled = true;
   try {
@@ -591,7 +668,6 @@ wishForm.addEventListener("submit", async (e) => {
   const title = wTitleEl.value.trim();
   if (!title) return;
   if (isDuplicate(title, true) && !confirm(`„${title}” e deja în lista de dorințe. O adaugi oricum?`)) return;
-
   const btn = wishForm.querySelector('button[type="submit"]');
   btn.disabled = true;
   try {
@@ -612,7 +688,6 @@ wishForm.addEventListener("submit", async (e) => {
   } finally { btn.disabled = false; }
 });
 
-// ---------- Ștergere ----------
 async function deleteBook(book) {
   if (!db) return;
   if (!confirm(`Sigur vrei să scoți „${book.title}” din listă?`)) return;
@@ -621,12 +696,13 @@ async function deleteBook(book) {
   if (error) { showStatus("Nu am putut șterge: " + error.message, true); return; }
   books = books.filter((b) => b.id !== book.id);
   if (editingId === book.id) editingId = null;
+  if (detailBook && detailBook.id === book.id) closeDetail();
   showStatus("🗑️ Carte ștearsă.");
   renderAll();
 }
 
 // ============================================================
-//  NAVIGARE ÎNTRE PAGINI
+//  NAVIGARE
 // ============================================================
 function showPage(name) {
   document.querySelectorAll("main > section[data-page]").forEach((s) => {
@@ -637,7 +713,6 @@ function showPage(name) {
 pageNav.addEventListener("change", () => showPage(pageNav.value));
 showPage(pageNav.value);
 
-// ---------- Filtre / sortare / căutare ----------
 searchEl.addEventListener("input", renderCollection);
 filterStatusEl.addEventListener("change", renderCollection);
 filterRatingEl.addEventListener("change", renderCollection);
