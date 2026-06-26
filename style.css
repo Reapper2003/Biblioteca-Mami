@@ -344,19 +344,6 @@ li.editing { display: block; padding: 16px; background: var(--card-2); }
 .dm-who { margin-top: 8px; }
 #dm-close { width: 100%; margin-top: 18px; }
 
-/* ---------- Spațiu folosit ---------- */
-.usage-row { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; }
-.usage-label { font-size: 0.92rem; color: var(--ink); }
-.usage-val { font-size: 0.95rem; font-weight: 700; color: var(--accent); }
-.usage-max { color: var(--muted); font-weight: 400; font-size: 0.8rem; }
-.usage-bar { height: 14px; border-radius: 20px; background: #10180f; overflow: hidden; margin: 9px 0 4px; }
-.usage-fill { height: 100%; border-radius: 20px; transition: width 0.35s ease; min-width: 3px; }
-.usage-fill.lvl-ok { background: #6fbf8c; }
-.usage-fill.lvl-warn { background: var(--accent); }
-.usage-fill.lvl-danger { background: #e2473a; }
-.usage-note { font-size: 0.8rem; color: var(--muted); margin: 4px 0 0; line-height: 1.4; }
-.usage-warn { font-size: 0.85rem; color: var(--accent); margin: 10px 0 0; font-weight: 600; }
-
 /* ---------- Empty / Footer ---------- */
 .empty {
   display: block; color: var(--muted); text-align: center; padding: 30px 16px;
