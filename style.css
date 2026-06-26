@@ -294,14 +294,16 @@ li.editing { display: block; padding: 16px; background: var(--card-2); }
 /* ---------- Ștampile + insignă pe coperta de raft ---------- */
 .shelf-cover { position: relative; }
 .stamp {
-  position: absolute; left: 50%; top: 60%;
-  transform: translate(-50%, -50%) rotate(-17deg);
-  border: 2.5px solid; border-radius: 4px; padding: 1px 8px;
-  font-size: 0.92rem; font-weight: 800; letter-spacing: 1px;
-  opacity: 0.92; pointer-events: none; white-space: nowrap;
+  position: absolute; left: 50%; top: 56%;
+  transform: translate(-50%, -50%) rotate(-15deg);
+  border: 3px solid; border-radius: 6px; padding: 4px 12px;
+  font-size: 1.15rem; font-weight: 800; letter-spacing: 1.5px; text-transform: uppercase;
+  pointer-events: none; white-space: nowrap;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.65);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
 }
-.stamp-sold { color: #e2473a; border-color: #e2473a; background: rgba(226, 71, 58, 0.13); }
-.stamp-don { color: #e8902f; border-color: #e8902f; background: rgba(232, 144, 47, 0.13); }
+.stamp-sold { color: #ff6a5c; border-color: #ff6a5c; background: rgba(38, 6, 4, 0.5); }
+.stamp-don { color: #ffb04d; border-color: #ffb04d; background: rgba(38, 22, 2, 0.5); }
 .shelf-lbadge {
   position: absolute; left: 5px; bottom: 5px; max-width: 88%;
   font-size: 0.62rem; padding: 1px 6px; border-radius: 10px;

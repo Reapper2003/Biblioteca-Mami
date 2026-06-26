@@ -593,8 +593,9 @@ function renderStats() {
 function renderDuplicates() {
   const map = {};
   for (const b of collectionBooks()) {
-    const k = (b.title || "").trim().toLowerCase();
-    if (!k) continue;
+    const title = (b.title || "").trim().toLowerCase();
+    if (!title) continue;
+    const k = title + "|" + (b.author || "").trim().toLowerCase();
     (map[k] = map[k] || []).push(b);
   }
   const dups = Object.values(map).filter((a) => a.length > 1).sort((a, b) => b.length - a.length);
